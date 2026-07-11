@@ -1,3 +1,109 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+@custom-variant hocus (&:hover, &:focus);
+
+@theme {
+  --animate-blob-1: blob-1 22s ease-in-out infinite;
+  --animate-blob-2: blob-2 27s ease-in-out infinite;
+  --animate-blob-3: blob-3 19s ease-in-out infinite;
+  --animate-blob-4: blob-4 30s ease-in-out infinite;
+  --animate-blob-5: blob-5 24s ease-in-out infinite;
+  --animate-blob-6: blob-6 33s ease-in-out infinite;
+
+  @keyframes blob-1 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+    30% {
+      transform: translate(50px, 40px) scale(1.15) rotate(8deg);
+    }
+    60% {
+      transform: translate(-40px, 70px) scale(0.9) rotate(-6deg);
+    }
+  }
+
+  @keyframes blob-2 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+    25% {
+      transform: translate(-60px, 30px) scale(1.1) rotate(-5deg);
+    }
+    50% {
+      transform: translate(35px, -45px) scale(0.88) rotate(6deg);
+    }
+    75% {
+      transform: translate(55px, 50px) scale(1.05) rotate(3deg);
+    }
+  }
+
+  @keyframes blob-3 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+    40% {
+      transform: translate(-50px, -35px) scale(1.2) rotate(10deg);
+    }
+    70% {
+      transform: translate(45px, 25px) scale(0.85) rotate(-8deg);
+    }
+  }
+
+  @keyframes blob-4 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+    20% {
+      transform: translate(40px, -50px) scale(1.08) rotate(5deg);
+    }
+    55% {
+      transform: translate(-55px, -20px) scale(1.18) rotate(-4deg);
+    }
+    80% {
+      transform: translate(-25px, 45px) scale(0.92) rotate(7deg);
+    }
+  }
+
+  @keyframes blob-5 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+    35% {
+      transform: translate(60px, 35px) scale(0.9) rotate(-7deg);
+    }
+    65% {
+      transform: translate(-45px, -55px) scale(1.14) rotate(9deg);
+    }
+  }
+
+  @keyframes blob-6 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+    30% {
+      transform: translate(-35px, 55px) scale(1.12) rotate(6deg);
+    }
+    50% {
+      transform: translate(50px, 20px) scale(0.87) rotate(-9deg);
+    }
+    75% {
+      transform: translate(-50px, -40px) scale(1.06) rotate(4deg);
+    }
+  }
+}
+
+@layer components {
+  .input-glass {
+    @apply w-full px-4 py-3 text-sm text-slate-900 dark:text-slate-100
+           placeholder:text-slate-600 border dark:placeholder:text-slate-400 border-black/3 dark:border-white/10
+           hocus:border-indigo-700 dark:hocus:border-indigo-300
+           rounded-md focus:rounded-3xl backdrop-blur-md shadow-xl
+           outline-none transition-all duration-200;
+  }
+}

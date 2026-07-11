@@ -1,0 +1,50 @@
+<div
+  class="min-h-screen bg-slate-100 dark:bg-slate-950 relative overflow-hidden"
+>
+  <div class="fixed inset-0 pointer-events-none" aria-hidden="true">
+    <div
+      class="absolute top-[6%] left-[8%] w-116 h-116 bg-indigo-400/30 rounded-full blur-3xl animate-blob-1"
+    ></div>
+    <div
+      class="absolute top-[-4%] left-[38%] w-100 h-100 bg-violet-400/20 rounded-full blur-3xl animate-blob-2 [animation-delay:-6s]"
+    ></div>
+    <div
+      class="absolute top-[8%] right-[6%] w-116 h-116 bg-rose-300/20 rounded-full blur-3xl animate-blob-3 [animation-delay:-3s]"
+    ></div>
+    <div
+      class="absolute bottom-[8%] left-[6%] w-92 h-92 bg-sky-300/20 rounded-full blur-3xl animate-blob-4 [animation-delay:-12s]"
+    ></div>
+    <div
+      class="absolute bottom-[-6%] left-[40%] w-100 h-100 bg-fuchsia-300/15 rounded-full blur-3xl animate-blob-5 [animation-delay:-9s]"
+    ></div>
+    <div
+      class="absolute bottom-[6%] right-[8%] w-116 h-116 bg-indigo-300/15 rounded-full blur-3xl animate-blob-6 [animation-delay:-18s]"
+    ></div>
+  </div>
+
+  <main class="min-h-screen min-w-screen relative z-10 justify-center items-center flex">
+    <div
+      class="flex flex-col gap-3 w-full max-w-md rounded-md bg-white/5 backdrop-blur-lg p-6 shadow-xl dark:text-slate-100 text-slate-900"
+    >
+      <button class="input-glass">
+        <div class="relative flex items-center space-x-4 justify-center">
+          <img
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            class="absolute left-0 w-5 group-hover:scale-110 transition duration-500"
+            alt="google logo"
+          />
+          <span
+            class="block w-max font-semibold tracking-wide text-gray-700 dark:text-white text-sm transition duration-300 sm:text-base"
+            >Continue with Google
+          </span>
+        </div>
+      </button>
+      <app-auth-form />
+
+      
+
+      <!-- Нижній підпис -->
+      
+    </div>
+  </main>
+</div>
