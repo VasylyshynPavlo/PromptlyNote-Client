@@ -1,7 +1,7 @@
 import { Task } from "./task";
 
 export interface TaskList {
-  id: number;
+  id: string;
   name: string;
   description: string;
   iconName: string;

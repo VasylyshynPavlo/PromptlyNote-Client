@@ -7,7 +7,6 @@ import { Sidebar } from './components/sidebar/sidebar';
   selector: 'app-main-layout',
   imports: [RouterOutlet, RouterLink, Sidebar],
   templateUrl: './main-layout.html',
-  styleUrl: './main-layout.css'
 })
 export class MainLayout {
   authservice = inject(AuthService);

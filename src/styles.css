@@ -170,3 +170,14 @@
            outline-none transition-all duration-200;
   }
 }
+
+@layer base {
+  * {
+    @apply scrollbar-thin scrollbar-thumb-slate-400 scrollbar-track-transparent;
+  }
+  @media (prefers-color-scheme: dark) {
+    * {
+      @apply scrollbar-thumb-slate-500;
+    }
+  }
+}

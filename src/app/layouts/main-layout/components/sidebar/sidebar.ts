@@ -21,7 +21,6 @@ export class IconPipe implements PipeTransform {
   selector: 'app-sidebar',
   imports: [IconPipe, RouterLink, RouterLinkActive],
   templateUrl: './sidebar.html',
-  styleUrl: './sidebar.css',
 })
 export class Sidebar implements OnInit {
   readonly taskListService = inject(TaskListService);
