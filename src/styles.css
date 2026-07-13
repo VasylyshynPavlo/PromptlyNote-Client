@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '@angular/cdk/overlay-prebuilt.css';
 
 @custom-variant hocus (&:hover, &:focus);
 
@@ -99,6 +100,68 @@
 }
 
 @layer components {
+  .task-busy {
+    pointer-events: none;
+    --ant: var(--color-indigo-700);
+    background-image:
+      linear-gradient(to right, var(--ant) 50%, transparent 50%),
+      linear-gradient(to right, var(--ant) 50%, transparent 50%),
+      linear-gradient(to bottom, var(--ant) 50%, transparent 50%),
+      linear-gradient(to bottom, var(--ant) 50%, transparent 50%);
+    background-position:
+      0 0,
+      0 100%,
+      0 0,
+      100% 0;
+    background-size:
+      16px 2px,
+      16px 2px,
+      2px 16px,
+      2px 16px;
+    background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+    animation: marching-ants 0.8s linear infinite;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .task-busy {
+      pointer-events: none;
+      --ant: var(--color-indigo-300);
+      background-image:
+        linear-gradient(to right, var(--ant) 50%, transparent 50%),
+        linear-gradient(to right, var(--ant) 50%, transparent 50%),
+        linear-gradient(to bottom, var(--ant) 50%, transparent 50%),
+        linear-gradient(to bottom, var(--ant) 50%, transparent 50%);
+      background-position:
+        0 0,
+        0 100%,
+        0 0,
+        100% 0;
+      background-size:
+        16px 2px,
+        16px 2px,
+        2px 16px,
+        2px 16px;
+      background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+      animation: marching-ants 0.8s linear infinite;
+    }
+  }
+
+  @keyframes marching-ants {
+    to {
+      background-position:
+        16px 0,
+        -16px 100%,
+        0 -16px,
+        100% 16px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .task-busy {
+      animation: none;
+    }
+  }
+
   .input-glass {
     @apply w-full px-4 py-3 text-sm text-slate-900 dark:text-slate-100
            placeholder:text-slate-600 border dark:placeholder:text-slate-400 border-black/3 dark:border-white/10

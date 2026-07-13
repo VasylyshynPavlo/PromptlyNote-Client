@@ -1,8 +1,8 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, signal, Service } from '@angular/core';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 import { ProblemDetails } from '../interfaces/problem-details';
-import { AuthApi } from './api/auth-api';
 
 export type AuthField = 'name' | 'email' | 'password';
 export type FieldErrors = Partial<Record<AuthField, string>>;
@@ -44,17 +44,26 @@ export interface AuthPayload {
 
 @Service()
 export class AuthService {
-  private readonly api = inject(AuthApi);
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = environment.apiUrl;
   private readonly router = inject(Router);
 
   readonly errors = signal<AuthErrors>({ fields: {} });
   readonly loading = signal(false);
 
+  private readonly formHeaders = new HttpHeaders({
+    'Content-Type': 'application/x-www-form-urlencoded',
+  });
+
   login(creditals: { email: string; password: string }) {
     this.errors.set({ fields: {} });
     this.loading.set(true);
 
-    this.api.login(creditals).subscribe({
+    const body = new HttpParams()
+      .set('Email', creditals.email)
+      .set('Password', creditals.password);
+
+    this.http.post(`${this.apiUrl}/auth/login`, body.toString(), { headers: this.formHeaders }).subscribe({
       next: () => {
         this.loading.set(false);
         this.router.navigateByUrl('/');
@@ -70,7 +79,32 @@ export class AuthService {
     this.errors.set({ fields: {} });
     this.loading.set(true);
 
-    this.api.register(creditals).subscribe({
+    const body = new HttpParams()
+      .set('FullName', creditals.fullName)
+      .set('Email', creditals.email)
+      .set('Password', creditals.password);
+
+    this.http.post(`${this.apiUrl}/auth/register`, body.toString(), { headers: this.formHeaders }).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.router.navigateByUrl('/');
+      },
+      error: (e: HttpErrorResponse) => {
+        this.loading.set(false);
+        this.errors.set(toAuthErrors(e));
+      },
+    });
+  }
+
+  loginWithGoogle(payload: { code: string; redirectUri: string }) {
+    this.errors.set({ fields: {} });
+    this.loading.set(true);
+
+    const body = new HttpParams()
+      .set('Code', payload.code)
+      .set('RedirectUri', payload.redirectUri);
+
+    this.http.post(`${this.apiUrl}/auth/login/google`, body.toString(), { headers: this.formHeaders }).subscribe({
       next: () => {
         this.loading.set(false);
         this.router.navigateByUrl('/');
@@ -83,7 +117,7 @@ export class AuthService {
   }
 
   logout() {
-    this.api.logout().subscribe({
+    this.http.post(`${this.apiUrl}/auth/logout`, {}).subscribe({
       next: () => {
         this.router.navigateByUrl('/auth');
       },

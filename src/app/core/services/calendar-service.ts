@@ -1,9 +1,9 @@
 import { Service, inject } from '@angular/core';
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../environments/environment.development';
 import { HttpClient } from '@angular/common/http';
 
 @Service()
-export class CalendarApi {
+export class CalendarService {
   private readonly apiUrl = environment.apiUrl;
   private readonly http = inject(HttpClient);
 

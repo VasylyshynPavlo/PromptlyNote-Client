@@ -2,12 +2,12 @@ import { inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { CanActivateFn, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
-import { AuthApi } from '../services/api/auth-api';
+import { AuthService } from '../services/auth-service';
 
 export const authGuard: CanActivateFn = () => {
   const document = inject(DOCUMENT);
   const router = inject(Router);
-  const api = inject(AuthApi);
+  const api = inject(AuthService);
 
   const hasUserInfoCookie = document.cookie
     .split('; ')
@@ -16,9 +16,12 @@ export const authGuard: CanActivateFn = () => {
   if (hasUserInfoCookie) {
     return true;
   }
+  else {
+    return router.createUrlTree(['/auth']);
+  }
 
-  return api.isLoggedIn().pipe(
-    map(() => true),
-    catchError(() => of(router.createUrlTree(['/auth'])))
-  );
+  // return api.isLoggedIn().pipe(
+  //   map(() => true),
+  //   catchError(() => of(router.createUrlTree(['/auth'])))
+  // );
 };

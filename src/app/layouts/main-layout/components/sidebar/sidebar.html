@@ -8,9 +8,11 @@
       <ul class="flex flex-col gap-2 p-2">
         @for (list of taskListService.taskLists(); track list.id) {
           <a
-            class="p-2 bg-white/1 rounded-md hover:rounded-r-3xl transition-all duration-300 border border-transparent hover:border-indigo-700 dark:hover:border-indigo-300 items-center flex gap-3 cursor-pointer select-none"
+            [routerLink]="['/lists', list.id]"
+            class="w-full text-left p-2 rounded-md hover:rounded-r-3xl transition-all duration-300 border border-transparent hover:border-indigo-700 dark:hover:border-indigo-300 items-center flex gap-3 cursor-pointer select-none"
+            routerLinkActive="bg-indigo-500/15 rounded-r-3xl font-medium text-indigo-700 dark:text-indigo-300"
           >
-            <span class="material-symbols-outlined">
+            <span class="material-symbols-outlined" aria-hidden="true">
               {{ list.iconName | icon }}
             </span>
             {{ list.name }}

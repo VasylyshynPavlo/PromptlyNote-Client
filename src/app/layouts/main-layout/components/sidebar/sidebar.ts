@@ -1,6 +1,5 @@
-import { pipe } from "rxjs";
-import { TaskList } from "./../../../../core/interfaces/task-list";
-import { Component, inject, Pipe, PipeTransform, signal } from '@angular/core';
+import { Component, inject, OnInit, Pipe, PipeTransform } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TaskListService } from '../../../../core/services/task-list-service';
 
 const ICON_MAP: Record<string, string> = {
@@ -20,16 +19,14 @@ export class IconPipe implements PipeTransform {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [IconPipe],
+  imports: [IconPipe, RouterLink, RouterLinkActive],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })
-export class Sidebar {
+export class Sidebar implements OnInit {
   readonly taskListService = inject(TaskListService);
 
-  taskList = signal<TaskList[]>([]);
-
-  ngOnInit() {
-    this.taskListService.list({page: 0, pageSize: 10, sortBy: 0, includeTasks: false});
+  ngOnInit(): void {
+    this.taskListService.list();
   }
 }
