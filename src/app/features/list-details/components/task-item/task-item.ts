@@ -1,108 +1,150 @@
-import { Component, inject, input, output, signal } from '@angular/core';
-import { OverlayModule, ConnectedPosition } from '@angular/cdk/overlay';
-import { finalize, switchMap, Observable } from 'rxjs';
+import { UserService } from './../../../../core/services/user-service';
+import {
+  Component,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { Observable } from 'rxjs';
 import { Task } from '../../../../core/interfaces/task';
+import { CreateSubTask } from '../../../../core/interfaces/api/create-task';
+import { Category } from '../../../../core/interfaces/category';
 import { TaskSerivce } from '../../../../core/services/task-serivce';
-import { LocalDatePipe } from '../../../../core/pipes/local-date-pipe';
+import { DatePicker } from '../date-picker/date-picker';
+import { ReminderPicker } from '../reminder-picker/reminder-picker';
+import { StepsPicker } from '../steps-picker/steps-picker';
+import { NotePicker } from '../note-picker/note-picker';
+import { CategoryPicker } from '../category-picker/category-picker';
+import { TaskListService } from '../../../../core/services/task-list-service';
 
 @Component({
   selector: 'app-task-item',
-  imports: [OverlayModule, LocalDatePipe],
+  imports: [DatePicker, ReminderPicker, StepsPicker, NotePicker, CategoryPicker],
   templateUrl: './task-item.html',
   host: { class: 'block' },
 })
 export class TaskItem {
-  private readonly taskService = inject(TaskSerivce);
+  private taskService = inject(TaskSerivce);
+  private taskListService = inject(TaskListService);
+  userService = inject(UserService);
 
-  readonly task = input.required<Task>();
+  task = input.required<Task>();
+  taskChange = output<Task>();
+  taskDeleted = output<string>();
 
-  /** Emits the refreshed task after a mutation so the parent can replace it in its list. */
-  readonly taskChange = output<Task>();
+  pending = signal(false);
 
-  /** Maximum reminder lead time in minutes (28 days). */
-  readonly maxRemindMinutes = 40320;
+  editingName = signal(false);
+  nameDraft = signal('');
+  nameInput = viewChild<ElementRef<HTMLInputElement>>('nameInput');
 
-  /** True while an update is in flight; the row is blocked and shows a busy border. */
-  readonly pending = signal(false);
-  readonly reminderMenuOpen = signal(false);
-  readonly reminderMinutesDraft = signal<number | null>(null);
-
-  /** Overlay placement for the reminder dropdown: below the trigger, right-aligned, flips above if no room. */
-  readonly reminderOverlayPositions: ConnectedPosition[] = [
-    { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 8 },
-    { originX: 'end', originY: 'top', overlayX: 'end', overlayY: 'bottom', offsetY: -8 },
-  ];
-
-  toggleReminderMenu(): void {
-    if (this.reminderMenuOpen()) {
-      this.closeReminderMenu();
-      return;
-    }
-    this.reminderMinutesDraft.set(this.task().remindBeforeMinutes);
-    this.reminderMenuOpen.set(true);
+  constructor() {
+    effect(() => {
+      if (this.editingName()) {
+        this.nameInput()?.nativeElement.focus();
+      }
+    });
   }
 
-  closeReminderMenu(): void {
-    this.reminderMenuOpen.set(false);
-  }
-
-  applyReminder(): void {
-    const minutes = this.reminderMinutesDraft();
-    if (minutes === null || minutes < 1 || minutes > this.maxRemindMinutes) {
-      return;
-    }
-    this.saveReminder(minutes);
-  }
-
-  clearReminder(): void {
-    this.saveReminder(null);
-  }
-
-  toggleCompletion(): void {
+  toggleCompletion() {
     const updated: Task = { ...this.task(), isCompleted: !this.task().isCompleted };
     this.runMutation(this.taskService.update({ id: updated.id, task: updated }));
   }
 
-  toggleGoogleCalendar(): void {
+  toggleGoogleCalendar() {
     const task = this.task();
     const action$ = task.syncToGoogleCalendar
       ? this.taskService.removeFromGoogleCalendar({ taskId: task.id })
       : this.taskService.addToGoogleCalendar({ taskId: task.id });
-
     this.runMutation(action$);
   }
 
-  private saveReminder(remindBeforeMinutes: number | null): void {
-    const updated: Task = { ...this.task(), remindBeforeMinutes };
-    this.closeReminderMenu();
+  startEditName() {
+    if (this.pending()) return;
+    this.nameDraft.set(this.task().name);
+    this.editingName.set(true);
+  }
+
+  cancelEditName() {
+    this.editingName.set(false);
+  }
+
+  saveName() {
+    if (!this.editingName()) return;
+    this.editingName.set(false);
+    const name = this.nameDraft().trim();
+    if (!name || name === this.task().name) return;
+    const updated: Task = { ...this.task(), name };
     this.runMutation(this.taskService.update({ id: updated.id, task: updated }));
   }
 
-  /** Runs a task mutation while marking the row pending, then refetches and emits the fresh task. */
-  private runMutation(mutation$: Observable<unknown>): void {
-    if (this.pending()) {
-      return;
-    }
+  toggleSubTaskCompletion(index: number) {
+    const subTasks: CreateSubTask[] = this.task().subTasks.map((s, i) => ({
+      name: s.name,
+      isCompleted: i === index ? !s.isCompleted : s.isCompleted,
+    }));
+    this.runMutation(this.taskService.replaceSubTasks({ taskId: this.task().id, subTasks }));
+  }
 
+  onDueChanged(dueDate: string | null) {
+    const updated: Task = { ...this.task(), dueDate };
+    this.runMutation(this.taskService.update({ id: updated.id, task: updated }));
+  }
+
+  onReminderChanged(remindBeforeMinutes: number | null) {
+    const updated: Task = { ...this.task(), remindBeforeMinutes };
+    this.runMutation(this.taskService.update({ id: updated.id, task: updated }));
+  }
+
+  onStepsChanged(subTasks: CreateSubTask[]) {
+    this.runMutation(this.taskService.replaceSubTasks({ taskId: this.task().id, subTasks }));
+  }
+
+  onNoteChanged(note: string) {
+    if (note === (this.task().note ?? '')) return;
+    const updated: Task = { ...this.task(), note };
+    this.runMutation(this.taskService.update({ id: updated.id, task: updated }));
+  }
+
+  onCategoryChanged(category: Category | null) {
+    const categoryId = category?.id ?? null;
+    if (categoryId === this.task().categoryId) return;
+    const updated: Task = { ...this.task(), categoryId };
+    this.runMutation(this.taskService.update({ id: updated.id, task: updated }));
+  }
+
+  deleteTask() {
+    if (this.pending()) return;
     const taskId = this.task().id;
     this.pending.set(true);
-    mutation$
-      .pipe(
-        switchMap(() =>
-          this.taskService.get({
-            id: taskId,
-            includeCategory: false,
-            includeTaskList: false,
-            includeSubTasks: true,
-          }),
-        ),
-        finalize(() => this.pending.set(false)),
-      )
-      .subscribe({
-        next: (task) => this.taskChange.emit(task),
-        error: (error) => {
-          console.error(`Error updating task ${taskId}:`, error);
-        },
-      });
+    this.taskService.delete(
+      { id: taskId },
+      {
+        onSuccess: () => this.taskDeleted.emit(taskId),
+        onSettled: () => this.pending.set(false),
+      },
+    );
+  }
+
+  private runMutation(mutation$: Observable<unknown>) {
+    if (this.pending()) return;
+    this.pending.set(true);
+    this.taskService.mutateAndReload(
+      mutation$,
+      {
+        id: this.task().id,
+        includeCategory: true,
+        includeTaskList: false,
+        includeSubTasks: true,
+      },
+      {
+        onSuccess: (task) => this.taskChange.emit(task),
+        onSettled: () => this.pending.set(false),
+      },
+    );
   }
 }

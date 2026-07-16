@@ -16,9 +16,8 @@ export class Home {
 
     effect(() => {
       const lists = this.taskListService.taskLists();
-      if (lists.length > 0) {
-        // replaceUrl: щоб "назад" не повертав на / і не редіректив по колу
-        this.router.navigate(['/lists', lists[0].id], { replaceUrl: true });
+      if (lists.data.length > 0) {
+        this.router.navigate(['/lists', lists.data[0].id], { replaceUrl: true });
       }
     });
   }

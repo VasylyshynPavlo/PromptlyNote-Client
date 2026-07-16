@@ -1,0 +1,51 @@
+<button
+  type="button"
+  cdkOverlayOrigin
+  #trigger="cdkOverlayOrigin"
+  class="shrink-0 flex items-center gap-1 rounded-md px-2 py-2 text-sm hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent"
+  (click)="toggle()"
+>
+  <span class="material-symbols-outlined" aria-hidden="true">
+    {{ value() }}
+  </span>
+</button>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayOpen]="open()"
+  [cdkConnectedOverlayPositions]="positions"
+  [cdkConnectedOverlayHasBackdrop]="true"
+  cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+  (backdropClick)="close()"
+  (detach)="close()"
+>
+  <div
+    class="animate-pop-in origin-top w-72 rounded-md border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl p-3 text-slate-900 dark:text-slate-100"
+  >
+    <label class="block text-sm font-medium mb-2">Icons</label>
+    <div class="flex flex-wrap gap-2 max-h-56 overflow-y-auto">
+      @for (icon of ICONS; track icon) {
+        <button
+          type="button"
+          class="flex items-center justify-center p-2 hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent rounded-md"
+          (click)="set(icon)"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">
+            {{ icon }}
+          </span>
+        </button>
+      }
+    </div>
+    <div class="mt-3 flex justify-between gap-2">
+      <button
+        type="button"
+        class="input-glass-red disabled:opacity-40 disabled:cursor-not-allowed"
+        [disabled]="value() === 'check_box'"
+        (click)="clear()"
+      >
+        Reset
+      </button>
+    </div>
+  </div>
+</ng-template>

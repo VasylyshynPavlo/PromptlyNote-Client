@@ -22,19 +22,35 @@
     ></div>
   </div>
 
-  <nav class="flex p-3 justify-between items-center bg-white/5 backdrop-blur-lg shadow-xl" aria-label="Main navigation">
+  <nav
+    class="flex p-3 justify-between items-center bg-white/5 backdrop-blur-lg shadow-xl"
+    aria-label="Main navigation"
+  >
+    <div class="flex gap-2 items-center">
+      @if (isNarrow()) {
+        <button
+          type="button"
+          class="flex items-center rounded-md p-1 border border-transparent hover:border-indigo-700 dark:hover:border-indigo-300 transition-colors"
+          aria-label="Open task lists"
+          aria-haspopup="dialog"
+          [attr.aria-expanded]="sidebarOpen()"
+          (click)="toggleSidebar()"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">menu</span>
+        </button>
+      }
       <a class="font-bold" routerLink="/">PromptlyNote</a>
-      Search placeholder
-      <button
-        class="input-glass px-3 py-1 rounded-lg text-sm font-medium w-20 text-slate-700 dark:text-slate-200 hover:bg-slate-900/5 dark:hover:bg-white/10 transition-colors"
-        (click)="logout()"
-      >
-        Logout
-      </button>
+    </div>
+    Search placeholder
+    <div class="flex gap-3 items-center">
+      <app-user-profile />
+    </div>
   </nav>
 
   <div class="relative z-10 flex flex-1 min-h-0">
-    <app-sidebar class="w-2xs flex flex-col bg-white/5 backdrop-blur-lg shadow-xl"/>
+    @if (!isNarrow()) {
+      <ng-container [ngTemplateOutlet]="sidebarPanel" />
+    }
 
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
       <main class="flex-1 h-full">
@@ -43,3 +59,22 @@
     </div>
   </div>
 </div>
+
+<ng-template #sidebarPanel>
+  <app-sidebar
+    class="w-2xs h-full flex flex-col overflow-y-auto bg-white/5 backdrop-blur-lg shadow-xl"
+  />
+</ng-template>
+
+<ng-template #sidebarDrawer>
+  <div
+    class="animate-slide-in-left h-full flex"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Task lists"
+    cdkTrapFocus
+    [cdkTrapFocusAutoCapture]="true"
+  >
+    <ng-container [ngTemplateOutlet]="sidebarPanel" />
+  </div>
+</ng-template>

@@ -1,0 +1,108 @@
+<div class="flex flex-col gap-2">
+  <h3 class="text-sm font-semibold">Categories</h3>
+
+  @if (categoryService.loading() && categories().data.length === 0) {
+    <p class="text-xs text-slate-500 dark:text-slate-400">Loading…</p>
+  } @else {
+    <ul class="flex flex-col gap-1">
+      @for (category of categories().data; track category.id) {
+        <li>
+          @if (editingId() === category.id) {
+            <form class="flex items-center gap-2" (submit)="saveEdit($event)">
+              <input
+                type="color"
+                class="h-8 w-8 shrink-0 cursor-pointer rounded-md border border-white/10 bg-transparent"
+                aria-label="Category color"
+                [value]="editColor()"
+                (input)="editColor.set($any($event.target).value)"
+              />
+              <input
+                type="text"
+                maxlength="50"
+                class="flex-1 min-w-0 rounded-md bg-transparent px-2 py-1 text-sm border border-white/10 focus:border-indigo-700 dark:focus:border-indigo-300 outline-none"
+                aria-label="Category name"
+                [value]="editName()"
+                (input)="editName.set($any($event.target).value)"
+              />
+              <button
+                type="submit"
+                class="flex items-center rounded-md p-1 border border-transparent hover:border-indigo-700 dark:hover:border-indigo-300 transition-colors disabled:opacity-40"
+                aria-label="Save category"
+                [disabled]="!editName().trim()"
+              >
+                <span class="material-symbols-outlined" aria-hidden="true">check</span>
+              </button>
+              <button
+                type="button"
+                class="flex items-center rounded-md p-1 border border-transparent hover:border-indigo-700 dark:hover:border-indigo-300 transition-colors"
+                aria-label="Cancel editing"
+                (click)="cancelEdit()"
+              >
+                <span class="material-symbols-outlined" aria-hidden="true">close</span>
+              </button>
+            </form>
+          } @else {
+            <div class="flex items-center gap-2 rounded-md px-1 py-1">
+              <span
+                class="h-3 w-3 shrink-0 rounded-full"
+                aria-hidden="true"
+                [style.background-color]="category.colorHex"
+              ></span>
+              <span class="flex-1 min-w-0 truncate text-sm">{{ category.name }}</span>
+
+              @if (category.default) {
+                <span class="text-xs text-slate-500 dark:text-slate-400">default</span>
+              } @else {
+                <button
+                  type="button"
+                  class="flex items-center rounded-md p-1 border border-transparent hover:border-indigo-700 dark:hover:border-indigo-300 transition-colors"
+                  [attr.aria-label]="'Edit ' + category.name"
+                  (click)="startEdit(category)"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+                </button>
+                <button
+                  type="button"
+                  class="flex items-center rounded-md p-1 border border-transparent hover:text-red-600 dark:hover:text-red-400 hover:border-red-500 transition-colors"
+                  [attr.aria-label]="'Delete ' + category.name"
+                  (click)="remove(category)"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                </button>
+              }
+            </div>
+          }
+        </li>
+      } @empty {
+        <li class="text-xs text-slate-500 dark:text-slate-400">No categories yet.</li>
+      }
+    </ul>
+
+    <form class="flex items-center gap-2 pt-1" (submit)="add($event)">
+      <input
+        type="color"
+        class="h-8 w-8 shrink-0 cursor-pointer rounded-md border border-white/10 bg-transparent"
+        aria-label="New category color"
+        [value]="newColor()"
+        (input)="newColor.set($any($event.target).value)"
+      />
+      <input
+        type="text"
+        maxlength="50"
+        placeholder="New category"
+        class="flex-1 min-w-0 rounded-md bg-transparent px-2 py-1 text-sm border border-white/10 focus:border-indigo-700 dark:focus:border-indigo-300 outline-none"
+        aria-label="New category name"
+        [value]="newName()"
+        (input)="newName.set($any($event.target).value)"
+      />
+      <button
+        type="submit"
+        class="flex items-center rounded-md p-1 border border-transparent hover:border-indigo-700 dark:hover:border-indigo-300 transition-colors disabled:opacity-40"
+        aria-label="Add category"
+        [disabled]="!newName().trim()"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">add</span>
+      </button>
+    </form>
+  }
+</div>

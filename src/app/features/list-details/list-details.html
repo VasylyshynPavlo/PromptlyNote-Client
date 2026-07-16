@@ -10,29 +10,35 @@
     </header>
     <div class="flex flex-col gap-3 mb-4">
       <div class="rounded-md bg-white/5 backdrop-blur-md shadow">
-        <app-add-task [taskListId]="list.id" />
+        <app-add-task [taskListId]="list.id" (taskCreated)="reload()" />
       </div>
     </div>
-    @if (list.tasks && list.tasks.length > 0) {
-      <div class="flex flex-col flex-1 min-h-0 dark:text-slate-100 text-slate-900">
-        <div class="rounded-md rounded-b-none bg-white/5 backdrop-blur-md shadow flex items-center gap-3 mb-1">
-          <div class="p-2 rounded-md flex items-center">
-            <span class="material-symbols-outlined" aria-hidden="true"> select_check_box </span>
+    @if (tasks(); as taskItems) {
+      @if (taskItems.length > 0) {
+        <div class="flex flex-col flex-1 min-h-0 dark:text-slate-100 text-slate-900">
+          <div class="rounded-md rounded-b-none bg-white/5 backdrop-blur-md shadow flex items-center gap-3 mb-1">
+            <div class="p-2 rounded-md flex items-center">
+              <span class="material-symbols-outlined" aria-hidden="true"> select_check_box </span>
+            </div>
+            <span class="p-2 flex-1">Title</span>
+            <div class="flex items-center gap-2">
+              <span class="p-2 flex-1 mr-11"> Due Date </span>
+              <div class="flex items-center gap-2"></div>
+            </div>
           </div>
-          <span class="p-2 flex-1">Title</span>
-          <div class="flex items-center gap-2">
-            <span class="p-2 flex-1"> Due Date </span>
-            <div class="flex items-center gap-2"></div>
+          <div class="flex flex-col gap-1 flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+            @for (task of taskItems; track task.id) {
+              <app-task-item
+                [task]="task"
+                (taskChange)="replaceTask($event)"
+                (taskDeleted)="removeTask($event)"
+              />
+            }
           </div>
         </div>
-        <div class="flex flex-col gap-1 flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
-          @for (task of list.tasks; track task.id) {
-            <app-task-item [task]="task" (taskChange)="replaceTask($event)" />
-          }
-        </div>
-      </div>
-    } @else {
-      <p class="text-slate-500 dark:text-slate-400">No tasks in this list yet.</p>
+      } @else {
+        <p class="text-slate-500 dark:text-slate-400">No tasks in this list yet.</p>
+      }
     }
   } @else {
     <p class="text-slate-500 dark:text-slate-400">Task list not found.</p>

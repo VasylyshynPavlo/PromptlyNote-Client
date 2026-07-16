@@ -1,34 +1,47 @@
-<form class="flex flex-col">
+<form class="flex flex-col" (submit)="$event.preventDefault(); addTask()" [class.task-busy]="pending()">
   <div class="w-full flex items-center gap-3">
     <button
-      class="rounded-l-md flex items-center hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent p-2"
+      type="submit"
+      class="rounded-l-md flex items-center hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent p-2 disabled:opacity-40 disabled:cursor-not-allowed"
+      [disabled]="pending() || !name().trim()"
+      title="Add task"
     >
       <span class="material-symbols-outlined" aria-hidden="true"> add </span>
     </button>
     <input
       type="text"
       placeholder="Add a new task"
-      class="flex-1 p-2 rounded-r-md bg-transparent focus:outline-none"
+      class="flex-1 p-2 bg-transparent focus:outline-none"
+      [value]="name()"
+      [disabled]="pending()"
+      (input)="name.set($any($event.target).value)"
     />
+
+    <app-date-picker [value]="dueDate()" (changed)="dueDate.set($event)" />
   </div>
+
   <div class="flex">
+    <app-reminder-picker [value]="reminder()" (changed)="onReminderChanged($event)" [hidden]="!userService.user()?.googleCalendar" />
+
     <button
+      type="button"
       class="rounded-md flex gap-2 items-center hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent p-2"
+      [class]="syncToGoogle() ? 'text-indigo-700 dark:text-indigo-300' : ''"
+      [title]="
+        syncToGoogle()
+          ? 'This task will be added to Google Calendar'
+          : 'This task will not be added to Google Calendar'
+      "
+      (click)="toggleSyncToGoogle()"
+      [hidden]="!userService.user()?.googleCalendar"
     >
-      <span class="material-symbols-outlined" aria-hidden="true"> add_alert </span>
-      <span class="text-sm">Set Reminder</span>
+      <span class="material-symbols-outlined" aria-hidden="true">
+        {{ syncToGoogle() ? 'calendar_check' : 'calendar_add_on' }}
+      </span>
     </button>
-    <button
-      class="rounded-md flex gap-2 items-center hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent p-2"
-    >
-      <span class="material-symbols-outlined" aria-hidden="true"> calendar_add_on </span>
-      <span class="text-sm">Add to Google Calendar</span>
-    </button>
-    <button
-      class="rounded-md flex gap-2 items-center hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent p-2"
-    >
-      <span class="material-symbols-outlined" aria-hidden="true"> list_alt_add </span>
-      <span class="text-sm">Add steps</span>
-    </button>
+
+    <app-steps-picker [value]="steps()" (changed)="steps.set($event)" />
+    <app-note-picker [value]="note()" (changed)="note.set($event)" />
+    <app-category-picker [selected]="category()" (changed)="category.set($event)" />
   </div>
 </form>

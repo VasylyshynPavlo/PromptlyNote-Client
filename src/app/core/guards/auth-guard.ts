@@ -19,9 +19,4 @@ export const authGuard: CanActivateFn = () => {
   else {
     return router.createUrlTree(['/auth']);
   }
-
-  // return api.isLoggedIn().pipe(
-  //   map(() => true),
-  //   catchError(() => of(router.createUrlTree(['/auth'])))
-  // );
 };

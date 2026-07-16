@@ -11,6 +11,57 @@
   --animate-blob-5: blob-5 24s ease-in-out infinite;
   --animate-blob-6: blob-6 33s ease-in-out infinite;
 
+  --animate-grow-in: grow-in 0.2s ease-out;
+  --animate-pop-in: pop-in 0.15s ease-out;
+  --animate-slide-in-right: slide-in-right 0.2s ease-out;
+  --animate-slide-in-left: slide-in-left 0.2s ease-out;
+
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-in-left {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes pop-in {
+    from {
+      transform: scale(0);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes grow-in {
+    from {
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      max-height: 3rem;
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   @keyframes blob-1 {
     0%,
     100% {
@@ -100,6 +151,14 @@
 }
 
 @layer components {
+  .material-symbols-outlined {
+    font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 40;
+  }
+
   .task-busy {
     pointer-events: none;
     --ant: var(--color-indigo-700);
@@ -168,6 +227,35 @@
            hocus:border-indigo-700 dark:hocus:border-indigo-300
            rounded-md focus:rounded-3xl backdrop-blur-md shadow-xl
            outline-none transition-all duration-200;
+  }
+
+  .input-glass-red {
+    @apply w-full px-4 py-3 text-sm text-slate-900 dark:text-slate-100
+           placeholder:text-slate-600 border dark:placeholder:text-slate-400 border-red-500/5 dark:border-red-500/10
+           hocus:border-red-500 dark:hocus:border-red-400
+           bg-red-500/5 dark:bg-red-400/10
+           hocus:bg-red-500/15 dark:hocus:bg-red-400/20
+           rounded-md focus:rounded-3xl backdrop-blur-md shadow-xl
+           outline-none transition-all duration-200;
+  }
+
+  .cdk-drag-preview {
+    @apply rounded-md opacity-90 shadow-2xl;
+    animation: none;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .cdk-drag-placeholder {
+    @apply opacity-40;
+  }
+
+  .cdk-drag-animating {
+    transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+  }
+
+  .cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
+    transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
   }
 }
 

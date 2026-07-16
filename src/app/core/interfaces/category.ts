@@ -1,8 +1,8 @@
-export interface SubTask {
+export interface Category {
   id: string;
   name: string;
-  isCompleted: boolean;
-  order: number;
+  colorHex: string;
+  default: boolean;
   createdAt: string;
   updatedAt: string;
 }

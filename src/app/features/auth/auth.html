@@ -1,6 +1,4 @@
-<div
-  class="min-h-screen bg-slate-100 dark:bg-slate-950 relative overflow-hidden"
->
+<div class="min-h-screen bg-slate-100 dark:bg-slate-950 relative overflow-hidden">
   <div class="fixed inset-0 pointer-events-none" aria-hidden="true">
     <div
       class="absolute top-[6%] left-[8%] w-116 h-116 bg-indigo-400/30 rounded-full blur-3xl animate-blob-1"
@@ -25,6 +23,8 @@
   <main class="min-h-screen min-w-screen relative z-10 justify-center items-center flex">
     <div
       class="flex flex-col gap-3 w-full max-w-md rounded-md bg-white/5 backdrop-blur-lg p-6 shadow-xl dark:text-slate-100 text-slate-900"
+      [class.task-busy]="authService.loading()"
+      [attr.aria-busy]="authService.loading()"
     >
       <button type="button" class="input-glass" (click)="onGoogleLogin()">
         <div class="relative flex items-center space-x-4 justify-center">
@@ -40,11 +40,6 @@
         </div>
       </button>
       <app-auth-form />
-
-      
-
-      <!-- Нижній підпис -->
-      
     </div>
   </main>
 </div>

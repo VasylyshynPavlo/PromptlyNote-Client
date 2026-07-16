@@ -1,0 +1,126 @@
+<button
+  type="button"
+  class="flex items-center gap-2 rounded-md px-2 py-1 border border-transparent hover:border-indigo-700 dark:hover:border-indigo-300 transition-colors"
+  aria-haspopup="dialog"
+  [attr.aria-expanded]="open()"
+  (click)="toggle()"
+>
+  <span class="material-symbols-outlined" aria-hidden="true">account_circle</span>
+  <span class="text-sm font-medium">{{ userService.user()?.fullName }}</span>
+</button>
+
+<ng-template #panel>
+  <aside
+    class="animate-slide-in-right h-full w-80 max-w-[90vw] flex flex-col gap-5 overflow-y-auto border-l border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl p-4 text-slate-900 dark:text-slate-100"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="user-profile-title"
+    cdkTrapFocus
+    [cdkTrapFocusAutoCapture]="true"
+  >
+    <div class="flex items-center justify-between gap-2">
+      <h2 id="user-profile-title" class="text-base font-semibold">Profile</h2>
+      <button
+        type="button"
+        class="flex items-center rounded-md p-1 border border-transparent hover:border-indigo-700 dark:hover:border-indigo-300 transition-colors"
+        aria-label="Close profile"
+        (click)="close()"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <p class="text-lg font-medium">{{ userService.user()?.fullName }}</p>
+      <p class="text-sm text-slate-600 dark:text-slate-400">{{ userService.user()?.email }}</p>
+    </div>
+
+    <form class="flex flex-col gap-2" (submit)="changeFullName($event)">
+      <label for="profile-fullname" class="text-sm font-semibold">Full name</label>
+      <div class="flex items-center gap-2">
+        <input
+          id="profile-fullname"
+          type="text"
+          maxlength="255"
+          placeholder="Change full name"
+          class="flex-1 min-w-0 rounded-md bg-transparent px-2 py-1 text-sm border border-white/10 focus:border-indigo-700 dark:focus:border-indigo-300 outline-none"
+          [value]="newFullName()"
+          (input)="newFullName.set($any($event.target).value)"
+        />
+        <button
+          type="submit"
+          class="flex items-center rounded-md p-1 border border-transparent hover:border-indigo-700 dark:hover:border-indigo-300 transition-colors disabled:opacity-40"
+          aria-label="Save full name"
+          [disabled]="!newFullName().trim()"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">check</span>
+        </button>
+      </div>
+    </form>
+
+    @if (userService.user()?.isPasswordSet) {
+      <form class="flex flex-col gap-2" (submit)="changePassword($event)">
+        <h3 class="text-sm font-semibold">Change password</h3>
+        <input
+          type="password"
+          autocomplete="current-password"
+          placeholder="Current password"
+          class="rounded-md bg-transparent px-2 py-1 text-sm border border-white/10 focus:border-indigo-700 dark:focus:border-indigo-300 outline-none"
+          [value]="currentPassword()"
+          (input)="currentPassword.set($any($event.target).value)"
+        />
+        <input
+          type="password"
+          autocomplete="new-password"
+          minlength="6"
+          placeholder="New password (min 6)"
+          class="rounded-md bg-transparent px-2 py-1 text-sm border border-white/10 focus:border-indigo-700 dark:focus:border-indigo-300 outline-none"
+          [value]="newPassword()"
+          (input)="newPassword.set($any($event.target).value)"
+        />
+        @if (userService.passwordError()) {
+          <p class="text-xs text-red-600 dark:text-red-400">{{ userService.passwordError() }}</p>
+        }
+        <button
+          type="submit"
+          class="input-glass disabled:opacity-40 disabled:cursor-not-allowed"
+          [disabled]="!currentPassword() || newPassword().length < 6"
+        >
+          Update password
+        </button>
+      </form>
+    } @else {
+      <form class="flex flex-col gap-2" (submit)="startSetPassword($event)">
+        <h3 class="text-sm font-semibold">Set password</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+          You'll confirm your identity with Google to set a password.
+        </p>
+        <input
+          type="password"
+          autocomplete="new-password"
+          minlength="6"
+          placeholder="New password (min 6)"
+          class="rounded-md bg-transparent px-2 py-1 text-sm border border-white/10 focus:border-indigo-700 dark:focus:border-indigo-300 outline-none"
+          [value]="newPassword()"
+          (input)="newPassword.set($any($event.target).value)"
+        />
+        @if (userService.passwordError()) {
+          <p class="text-xs text-red-600 dark:text-red-400">{{ userService.passwordError() }}</p>
+        }
+        <button
+          type="submit"
+          class="input-glass disabled:opacity-40 disabled:cursor-not-allowed"
+          [disabled]="newPassword().length < 6"
+        >
+          Continue with Google
+        </button>
+      </form>
+    }
+
+    <app-category-manager />
+
+    <div class="mt-auto pt-4">
+      <button type="button" class="input-glass-red" (click)="logout()">Logout</button>
+    </div>
+  </aside>
+</ng-template>

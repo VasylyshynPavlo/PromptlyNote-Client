@@ -8,14 +8,14 @@ import { AuthService } from '../../../../core/services/auth-service';
   templateUrl: './auth-form.html',
 })
 export class AuthForm {
-  private readonly authService = inject(AuthService);
+  readonly authService = inject(AuthService);
 
   name = signal('');
   email = signal('');
   password = signal('');
   showPassword = signal(false);
   isRegistering = signal(false);
-
+  
   readonly errors = this.authService.errors;
 
   togglePassword(): void {
@@ -27,7 +27,8 @@ export class AuthForm {
       fullName: this.name(),
       email: this.email(),
       password: this.password(),
-    }) : this.authService.login({
+    })
+     : this.authService.login({
       email: this.email(),
       password: this.password(),
     });

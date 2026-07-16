@@ -1,31 +1,41 @@
-import { Component, inject, OnInit, Pipe, PipeTransform } from '@angular/core';
+import { Component, inject, OnInit, Pipe, PipeTransform, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TaskListService } from '../../../../core/services/task-list-service';
-
-const ICON_MAP: Record<string, string> = {
-  lightbulb: 'lightbulb',
-  start:     'rocket_launch',
-  personal:  'person',
-  'check-circle': 'check_circle',
-  briefcase:  'work',
-};
-
-@Pipe({ name: 'icon' })
-export class IconPipe implements PipeTransform {
-  transform(apiIconName: string): string {
-    return ICON_MAP[apiIconName] ?? 'checklist';
-  }
-}
+import { IconPicker } from '../icon-picker/icon-picker';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [IconPipe, RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, IconPicker],
   templateUrl: './sidebar.html',
 })
 export class Sidebar implements OnInit {
   readonly taskListService = inject(TaskListService);
 
+  newListIcon = signal<string>('check_box');
+  newListName = signal<string>('');
+  newListDescription = signal<string>('');
+
+  addList(event: Event) {
+    event.preventDefault();
+    const name = this.newListName().trim();
+    const description = this.newListDescription().trim();
+    if (!name || !description) return;
+
+    this.taskListService.create(
+      { name, description, iconName: this.newListIcon() },
+      {
+        onSuccess: () => {
+          this.newListName.set('');
+          this.newListDescription.set('');
+          this.newListIcon.set('check_box');
+        },
+      },
+    );
+  }
+
   ngOnInit(): void {
-    this.taskListService.list();
+    this.taskListService.list(
+      { page: 0, pageSize: 100, sortBy: 1, isDescending: true },
+    );
   }
 }

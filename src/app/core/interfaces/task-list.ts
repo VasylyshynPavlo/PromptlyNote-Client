@@ -7,7 +7,7 @@ export interface TaskList {
   iconName: string;
   default: boolean;
   userId: number;
-  tasks: Task[] | null;
   createdAt: string;
   updatedAt: string;
+  taskCount: number;
 }

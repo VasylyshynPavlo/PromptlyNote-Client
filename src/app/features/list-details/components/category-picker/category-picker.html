@@ -1,0 +1,73 @@
+<button
+  type="button"
+  cdkOverlayOrigin
+  #trigger="cdkOverlayOrigin"
+  class="flex items-center justify-center p-2 hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent rounded-md"
+  [title]="selected() ? 'Category: ' + selected()!.name : 'Choose a category'"
+  (click)="toggle()"
+>
+  <span class="material-symbols-outlined" aria-hidden="true" [style.color]="selected()?.colorHex">
+    {{ selected() ? 'label' : 'label_off' }}
+  </span>
+</button>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayOpen]="open()"
+  [cdkConnectedOverlayPositions]="positions"
+  [cdkConnectedOverlayHasBackdrop]="true"
+  cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+  (backdropClick)="close()"
+  (detach)="close()"
+>
+  <div
+    class="animate-pop-in origin-top w-56 rounded-md border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl p-3 text-slate-900 dark:text-slate-100"
+  >
+    <label class="block text-sm font-medium mb-2">Category</label>
+    @if (categoryService.loading()) {
+      <p class="text-xs text-slate-500 dark:text-slate-400 p-2">Loading…</p>
+    } @else {
+      <div class="flex flex-col gap-1 max-h-56 overflow-y-auto">
+        <button
+          type="button"
+          class="flex items-center gap-2 p-2 rounded-md hover:bg-white/10 text-left"
+          (click)="select(null)"
+        >
+          <span
+            class="material-symbols-outlined text-slate-500 dark:text-slate-400"
+            aria-hidden="true"
+          >
+            block
+          </span>
+          <span class="text-sm flex-1">None</span>
+          @if (selected() === null) {
+            <span class="material-symbols-outlined text-indigo-500" aria-hidden="true"> check </span>
+          }
+        </button>
+
+        @for (category of categories().data; track category.id) {
+          <button
+            type="button"
+            class="flex items-center gap-2 p-2 rounded-md hover:bg-white/10 text-left"
+            (click)="select(category)"
+          >
+            <span
+              class="h-3 w-3 rounded-full shrink-0"
+              aria-hidden="true"
+              [style.background-color]="category.colorHex"
+            ></span>
+            <span class="text-sm flex-1 truncate">{{ category.name }}</span>
+            @if (selected()?.id === category.id) {
+              <span class="material-symbols-outlined text-indigo-500" aria-hidden="true">
+                check
+              </span>
+            }
+          </button>
+        } @empty {
+          <p class="text-xs text-slate-500 dark:text-slate-400 p-2">No categories yet.</p>
+        }
+      </div>
+    }
+  </div>
+</ng-template>

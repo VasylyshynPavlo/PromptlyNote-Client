@@ -1,8 +1,10 @@
+import { UserService } from "./user-service";
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, signal, Service } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { ProblemDetails } from '../interfaces/problem-details';
+import { User } from "../interfaces/user";
 
 export type AuthField = 'name' | 'email' | 'password';
 export type FieldErrors = Partial<Record<AuthField, string>>;
@@ -47,6 +49,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl;
   private readonly router = inject(Router);
+  private readonly userService = inject(UserService);
 
   readonly errors = signal<AuthErrors>({ fields: {} });
   readonly loading = signal(false);
@@ -63,8 +66,9 @@ export class AuthService {
       .set('Email', creditals.email)
       .set('Password', creditals.password);
 
-    this.http.post(`${this.apiUrl}/auth/login`, body.toString(), { headers: this.formHeaders }).subscribe({
-      next: () => {
+    this.http.post<User>(`${this.apiUrl}/auth/login`, body.toString(), { headers: this.formHeaders }).subscribe({
+      next: (user) => {
+        this.userService.setUser(user);
         this.loading.set(false);
         this.router.navigateByUrl('/');
       },
@@ -84,8 +88,9 @@ export class AuthService {
       .set('Email', creditals.email)
       .set('Password', creditals.password);
 
-    this.http.post(`${this.apiUrl}/auth/register`, body.toString(), { headers: this.formHeaders }).subscribe({
-      next: () => {
+    this.http.post<User>(`${this.apiUrl}/auth/register`, body.toString(), { headers: this.formHeaders }).subscribe({
+      next: (user) => {
+        this.userService.setUser(user);
         this.loading.set(false);
         this.router.navigateByUrl('/');
       },
@@ -104,8 +109,9 @@ export class AuthService {
       .set('Code', payload.code)
       .set('RedirectUri', payload.redirectUri);
 
-    this.http.post(`${this.apiUrl}/auth/login/google`, body.toString(), { headers: this.formHeaders }).subscribe({
-      next: () => {
+    this.http.post<User>(`${this.apiUrl}/auth/login/google`, body.toString(), { headers: this.formHeaders }).subscribe({
+      next: (user) => {
+        this.userService.setUser(user);
         this.loading.set(false);
         this.router.navigateByUrl('/');
       },

@@ -5,6 +5,8 @@ export interface CreateTask {
   categoryId: string | null;
   taskListId: string;
   subTasks: CreateSubTask[];
+  remindBeforeMinutes: number | null;
+  syncToGoogleCalendar: boolean;
 }
 
 export interface CreateSubTask {

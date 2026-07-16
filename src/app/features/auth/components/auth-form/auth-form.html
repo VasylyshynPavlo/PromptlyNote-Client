@@ -2,7 +2,6 @@
   @if (errors().general; as msg) {
     <p role="alert" class="text-sm text-red-500 text-center">{{ msg }}</p>
   }
-  <!-- Name -->
   <div
     class="grid transition-all duration-300 ease-out"
     [class]="isRegistering() ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'"
@@ -27,7 +26,6 @@
     </div>
   </div>
 
-  <!-- Email -->
   <div class="group relative">
     <input
       type="email"
@@ -43,7 +41,6 @@
     }
   </div>
 
-  <!-- Password -->
   <div class="group relative">
     <input
       type="password"
@@ -57,27 +54,6 @@
     @if (errors().fields.password; as err) {
       <p id="password-err" class="text-sm text-red-500 mt-1">{{ err }}</p>
     }
-    <!-- Кнопка показати/сховати -->
-    <!-- <button
-      type="button"
-      (click)="togglePassword()"
-      [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
-      class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg dark:text-slate-400 text-slate-600 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-900/5 dark:hover:bg-white/10 transition-colors"
-    >
-      @if (showPassword()) {
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
-          <circle cx="12" cy="12" r="3" />
-        </svg>
-      } @else {
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c6.5 0 10 8 10 8a13.16 13.16 0 0 1-1.67 2.68" />
-          <path d="M6.61 6.61A13.5 13.5 0 0 0 2 12s3.5 8 10 8a9.74 9.74 0 0 0 5.39-1.61" />
-          <path d="M2 2l20 20" />
-          <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
-        </svg>
-      }
-    </button> -->
     <a
       href="#"
       class="self-end text-xs font-medium text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors"

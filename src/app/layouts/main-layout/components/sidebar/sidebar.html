@@ -1,23 +1,60 @@
-<aside>
+<aside class="text-slate-900 dark:text-slate-100">
   @if (taskListService.loading()) {
     <p>Loading...</p>
   } @else {
-    @if (taskListService.taskLists().length === 0) {
+    @if (taskListService.taskLists().data.length === 0) {
       <p>No task lists available.</p>
     } @else {
       <ul class="flex flex-col gap-2 p-2">
-        @for (list of taskListService.taskLists(); track list.id) {
+        @for (list of taskListService.taskLists().data; track list.id) {
           <a
             [routerLink]="['/lists', list.id]"
-            class="w-full text-left p-2 rounded-md hover:rounded-r-3xl transition-all duration-300 border border-transparent hover:border-indigo-700 dark:hover:border-indigo-300 items-center flex gap-3 cursor-pointer select-none"
+            class="w-full text-left rounded-md hover:rounded-r-3xl transition-all duration-300 border border-transparent hover:border-indigo-700 dark:hover:border-indigo-300 items-center flex gap-3 cursor-pointer select-none justify-between"
             routerLinkActive="bg-indigo-500/15 rounded-r-3xl font-medium text-indigo-700 dark:text-indigo-300"
           >
-            <span class="material-symbols-outlined" aria-hidden="true">
-              {{ list.iconName | icon }}
-            </span>
-            {{ list.name }}
+            <div class="flex items-center gap-2 p-2">
+              <span class="material-symbols-outlined" aria-hidden="true">
+                {{ list.iconName }}
+              </span>
+              {{ list.name }}
+            </div>
+            <div class="flex gap-3">
+              <span class="ml-auto text-sm text-slate-500 dark:text-slate-400  p-2">
+                {{ list.taskCount }}
+              </span>
+              <button class="flex items-center cursor-pointer px-2 py-2 hover:text-red-600 hover:dark:text-red-400 transition-all" [hidden]="list.default">
+                <span class="material-symbols-outlined" aria-hidden="true">
+                  delete
+                </span>
+              </button>
+            </div>
           </a>
         }
+        <form
+          class="flex flex-col w-full text-left rounded-md transition-all duration-300 border border-indigo-700 dark:border-indigo-300 cursor-pointer select-none"
+          (submit)="addList($event)"
+        >
+          <div class="flex gap-2 items-center justify-between">
+            <app-icon-picker [value]="newListIcon()" (changed)="newListIcon.set($event)" />
+            <input
+              type="text"
+              name="newListName"
+              placeholder="New list name"
+              class="flex-1 p-2 bg-transparent focus:outline-none"
+              [value]="newListName()"
+              (input)="newListName.set($any($event.target).value)"
+            />
+          </div>
+          <input
+            type="text"
+            name="newListDescription"
+            placeholder="New list description"
+            class="flex-1 p-2 bg-transparent focus:outline-none"
+            [value]="newListDescription()"
+            (input)="newListDescription.set($any($event.target).value)"
+          />
+          <button type="submit" class="hidden"></button>
+        </form>
       </ul>
     }
   }

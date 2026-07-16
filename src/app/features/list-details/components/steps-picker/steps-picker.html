@@ -1,0 +1,68 @@
+<button
+  type="button"
+  cdkOverlayOrigin
+  #trigger="cdkOverlayOrigin"
+  class="flex items-center justify-center p-2 hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent rounded-md"
+  [class]="value().length > 0 ? 'text-indigo-700 dark:text-indigo-300' : ''"
+  [title]="'Edit steps'"
+  (click)="toggle()"
+>
+  <span class="material-symbols-outlined" aria-hidden="true"> list_alt_add </span>
+</button>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayOpen]="open()"
+  [cdkConnectedOverlayPositions]="positions"
+  [cdkConnectedOverlayHasBackdrop]="true"
+  cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+  (backdropClick)="close()"
+  (detach)="close()"
+>
+  <div
+    class="animate-pop-in origin-top w-64 rounded-md border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl p-3 text-slate-900 dark:text-slate-100"
+  >
+    <label class="block text-sm font-medium mb-2">Steps</label>
+    <div class="flex flex-col gap-2" cdkDropList (cdkDropListDropped)="drop($event)">
+      @for (step of steps(); track $index) {
+        <div
+          class="overflow-hidden flex items-center gap-2"
+          cdkDrag
+          cdkDragLockAxis="y"
+          [cdkDragDisabled]="$index === steps().length - 1"
+        >
+          @if ($index !== steps().length - 1) {
+            <span
+              cdkDragHandle
+              class="shrink-0 flex items-center cursor-grab active:cursor-grabbing text-slate-400 dark:text-slate-500"
+              aria-label="Reorder step"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true"> drag_indicator </span>
+            </span>
+          }
+          <input
+            type="text"
+            class="input-glass"
+            placeholder="New step"
+            [value]="step.name"
+            (input)="update($index, $any($event.target).value)"
+          />
+          @if ($index !== steps().length - 1) {
+            <button
+              type="button"
+              class="shrink-0 flex items-center justify-center p-1 rounded-md hover:border-red-500 border border-transparent text-red-600 dark:text-red-400"
+              aria-label="Remove step"
+              (click)="remove($index)"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true"> close </span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+    <div class="mt-3 flex justify-end">
+      <button type="button" class="input-glass" (click)="save()">Save</button>
+    </div>
+  </div>
+</ng-template>

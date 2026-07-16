@@ -17,37 +17,39 @@ export class ListDetails {
   readonly id = input.required<string>();
 
   readonly taskList = signal<TaskList | null>(null);
+  readonly tasks = signal<Task[] | null>(null);
   readonly loading = signal(false);
 
   constructor() {
     effect(() => this.load(this.id()));
   }
 
+  reload(): void {
+    this.load(this.id());
+  }
+
   replaceTask(updated: Task): void {
-    this.taskList.update((list) => {
-      if (!list?.tasks) {
-        return list;
-      }
-      return {
-        ...list,
-        tasks: list.tasks.map((task) => (task.id === updated.id ? updated : task)),
-      };
-    });
+    this.tasks.update((tasks) =>
+      tasks ? tasks.map((task) => (task.id === updated.id ? updated : task)) : tasks,
+    );
+  }
+
+  removeTask(taskId: string): void {
+    this.tasks.update((tasks) => (tasks ? tasks.filter((task) => task.id !== taskId) : tasks));
   }
 
   private load(id: string): void {
     this.loading.set(true);
-    this.api.get({ id, includeTasks: true }).subscribe({
-      next: (list) => {
-        this.taskList.set(list);
-        this.loading.set(false);
-        console.log('Task list fetched successfully:', list);
+    this.api.getWithTasks(id, {
+      onSuccess: ({ taskList, tasks }) => {
+        this.taskList.set(taskList);
+        this.tasks.set(tasks);
       },
-      error: (error) => {
+      onError: () => {
         this.taskList.set(null);
-        this.loading.set(false);
-        console.error('Error fetching task list:', error);
+        this.tasks.set(null);
       },
+      onSettled: () => this.loading.set(false),
     });
   }
 }

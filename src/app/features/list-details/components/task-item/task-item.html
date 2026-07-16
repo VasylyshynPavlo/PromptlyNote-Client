@@ -1,111 +1,54 @@
 <div
-  class="rounded-md bg-white/5 backdrop-blur-md shadow flex items-center gap-3"
+  class="rounded-md bg-white/5 backdrop-blur-md shadow flex flex-col"
   [class.task-busy]="pending()"
   [attr.aria-busy]="pending()"
 >
-  <button
-    class="rounded-md flex items-center hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent p-2"
-    (click)="toggleCompletion()"
-  >
-    <span class="material-symbols-outlined" aria-hidden="true">
-      {{ task().isCompleted ? 'check_circle' : 'radio_button_unchecked' }}
-    </span>
-  </button>
-  <span class="p-2 flex-1" [class.line-through]="task().isCompleted">{{ task().name }}</span>
-  <div class="flex items-center gap-2">
-    <div class="flex items-center gap-2">
+  <div class="flex gap-3 items-center">
+    <button
+      class="rounded-md flex items-center hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent p-2"
+      (click)="toggleCompletion()"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true">
+        {{ task().isCompleted ? 'check_circle' : 'radio_button_unchecked' }}
+      </span>
+    </button>
+
+    @if (editingName()) {
+      <input
+        #nameInput
+        type="text"
+        class="p-2 flex-1 bg-transparent focus:outline-none"
+        aria-label="Task name"
+        [value]="nameDraft()"
+        (input)="nameDraft.set($any($event.target).value)"
+        (keydown.enter)="saveName()"
+        (keydown.escape)="cancelEditName()"
+        (blur)="saveName()"
+      />
+    } @else {
       <button
         type="button"
-        cdkOverlayOrigin
-        #reminderTrigger="cdkOverlayOrigin"
-        class="flex items-center justify-center p-2 hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent rounded-md disabled:opacity-40 disabled:cursor-not-allowed"
-        [disabled]="task().syncToGoogleCalendar === false"
-        [attr.aria-haspopup]="true"
-        [attr.aria-expanded]="reminderMenuOpen()"
-        (click)="toggleReminderMenu()"
+        class="p-2 flex-1 text-left rounded-md hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent"
+        title="Rename task"
+        (click)="startEditName()"
       >
-        <span
-          class="material-symbols-outlined"
-          aria-hidden="true"
-          [title]="
-            task().syncToGoogleCalendar === false
-              ? 'Add to Google Calendar before setting a reminder'
-              : task().remindBeforeMinutes !== null
-                ? 'Reminder set for ' + task().remindBeforeMinutes + ' minutes before'
-                : 'Add a reminder to this task'
-          "
-        >
-          {{
-            task().syncToGoogleCalendar === false
-              ? 'notifications_off'
-              : task().remindBeforeMinutes !== null
-                ? 'notifications_active'
-                : 'notifications'
-          }}
-        </span>
+        <span [class.line-through]="task().isCompleted">{{ task().name }}</span>
       </button>
+    }
 
-      <ng-template
-        cdkConnectedOverlay
-        [cdkConnectedOverlayOrigin]="reminderTrigger"
-        [cdkConnectedOverlayOpen]="reminderMenuOpen()"
-        [cdkConnectedOverlayPositions]="reminderOverlayPositions"
-        [cdkConnectedOverlayHasBackdrop]="true"
-        cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-        (backdropClick)="closeReminderMenu()"
-        (detach)="closeReminderMenu()"
-      >
-        <div
-          role="dialog"
-          aria-label="Set reminder"
-          class="w-64 rounded-md border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl p-3 text-slate-900 dark:text-slate-100"
-        >
-          <label [attr.for]="'reminder-' + task().id" class="block text-sm font-medium mb-1">
-            Нагадати за (хв)
-          </label>
-          <input
-            [id]="'reminder-' + task().id"
-            type="number"
-            min="1"
-            [max]="maxRemindMinutes"
-            step="1"
-            inputmode="numeric"
-            class="input-glass"
-            [value]="reminderMinutesDraft()"
-            (input)="reminderMinutesDraft.set($any($event.target).valueAsNumber || null)"
-          />
-          <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-            Максимум {{ maxRemindMinutes }} хв (28 днів).
-          </p>
-
-          <div class="mt-3 flex justify-between gap-2">
-            <button
-              type="button"
-              class="rounded-md px-3 py-1.5 text-sm border border-transparent hover:border-red-500 text-red-600 dark:text-red-400 disabled:opacity-40 disabled:cursor-not-allowed"
-              [disabled]="task().remindBeforeMinutes === null"
-              (click)="clearReminder()"
-            >
-              Прибрати
-            </button>
-            <button
-              type="button"
-              class="rounded-md px-3 py-1.5 text-sm bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed"
-              [disabled]="
-                reminderMinutesDraft() === null ||
-                $any(reminderMinutesDraft()) < 1 ||
-                $any(reminderMinutesDraft()) > maxRemindMinutes
-              "
-              (click)="applyReminder()"
-            >
-              Задати
-            </button>
-          </div>
-        </div>
-      </ng-template>
+    <div class="flex items-center gap-2">
+      <app-reminder-picker
+        [value]="task().remindBeforeMinutes"
+        [disabled]="task().syncToGoogleCalendar === false"
+        (changed)="onReminderChanged($event)"
+        [hidden]="!userService.user()?.googleCalendar"
+      />
 
       <button
         class="group flex items-center justify-center p-2 hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent rounded-md"
         (click)="toggleGoogleCalendar()"
+        [class]="task().syncToGoogleCalendar ? 'text-indigo-700 dark:text-indigo-300' : ''"
+        [hidden]="!userService.user()?.googleCalendar"
       >
         <span
           class="material-symbols-outlined"
@@ -117,15 +60,50 @@
           <span class="group-hover:hidden">
             {{ task().syncToGoogleCalendar ? 'calendar_check' : 'event_busy' }}
           </span>
-
           <span class="hidden group-hover:inline">
             {{ task().syncToGoogleCalendar ? 'event_busy' : 'calendar_add_on' }}
           </span>
         </span>
       </button>
+
+      <app-steps-picker [value]="task().subTasks" (changed)="onStepsChanged($event)" />
+      <app-note-picker [value]="task().note ?? ''" (changed)="onNoteChanged($event)" />
+      <app-category-picker [selected]="task().category" (changed)="onCategoryChanged($event)" />
+      <app-date-picker [value]="task().dueDate" (changed)="onDueChanged($event)" />
+
+      <button
+        type="button"
+        class="flex items-center justify-center p-2 hover:border-red-500 border border-transparent rounded-md text-red-600 dark:text-red-400"
+        title="Delete task"
+        (click)="deleteTask()"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true"> delete </span>
+      </button>
     </div>
-    <span class="p-2 flex-1" [class.line-through]="task().isCompleted">{{
-      task().dueDate | localDate: 'short'
-    }}</span>
   </div>
+
+  @if (task().subTasks.length > 0) {
+    <div class="flex flex-col pl-10 pb-2">
+      @for (subTask of task().subTasks; track subTask.id) {
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="rounded-md flex items-center hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent p-1"
+            [title]="subTask.isCompleted ? 'Mark step as not completed' : 'Mark step as completed'"
+            (click)="toggleSubTaskCompletion($index)"
+          >
+            <span class="material-symbols-outlined" aria-hidden="true">
+              {{ subTask.isCompleted ? 'check_circle' : 'radio_button_unchecked' }}
+            </span>
+          </button>
+          <span
+            class="p-1 text-sm text-slate-700 dark:text-slate-300"
+            [class.line-through]="subTask.isCompleted"
+          >
+            {{ subTask.name }}
+          </span>
+        </div>
+      }
+    </div>
+  }
 </div>
