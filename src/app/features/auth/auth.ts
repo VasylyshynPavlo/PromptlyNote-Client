@@ -4,11 +4,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthForm } from './components/auth-form/auth-form';
 import { AuthService } from '../../core/services/auth-service';
 import { UserService } from '../../core/services/user-service';
+import { CalendarService } from '../../core/services/calendar-service';
 import {
   SET_PASSWORD_PENDING_KEY,
   SET_PASSWORD_VALUE_KEY,
 } from '../../core/constants/set-password-flow';
-import { environment } from '../../../environments/environment';
+import { CALENDAR_CONNECT_PENDING_KEY } from '../../core/constants/calendar-flow';
+import { googleOAuthUrl, GOOGLE_LOGIN_SCOPE } from '../../core/utils/google-oauth';
 
 @Component({
   selector: 'app-auth',
@@ -22,6 +24,7 @@ export class Auth {
   private readonly router = inject(Router);
   readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
+  private readonly calendarService = inject(CalendarService);
 
   private readonly redirectUri = `${this.document.location.origin}/auth`;
 
@@ -33,6 +36,11 @@ export class Auth {
 
     if (sessionStorage.getItem(SET_PASSWORD_PENDING_KEY)) {
       this.completeSetPassword(code);
+      return;
+    }
+
+    if (sessionStorage.getItem(CALENDAR_CONNECT_PENDING_KEY)) {
+      this.completeCalendarConnect(code);
       return;
     }
 
@@ -53,16 +61,16 @@ export class Auth {
     );
   }
 
-  onGoogleLogin(): void {
-    const params = new URLSearchParams({
-      client_id: environment.googleClientId,
-      redirect_uri: this.redirectUri,
-      response_type: 'code',
-      scope: 'openid email profile',
-      access_type: 'offline',
-      prompt: 'consent',
-    });
+  private completeCalendarConnect(code: string): void {
+    sessionStorage.removeItem(CALENDAR_CONNECT_PENDING_KEY);
 
-    this.document.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+    this.calendarService.connect(code, this.redirectUri, {
+      onSuccess: () => this.router.navigateByUrl('/'),
+      onError: () => this.router.navigateByUrl('/'),
+    });
+  }
+
+  onGoogleLogin(): void {
+    this.document.location.href = googleOAuthUrl(this.redirectUri, GOOGLE_LOGIN_SCOPE);
   }
 }

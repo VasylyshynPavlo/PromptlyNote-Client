@@ -17,7 +17,13 @@ import {
   SET_PASSWORD_PENDING_KEY,
   SET_PASSWORD_VALUE_KEY,
 } from '../../../../core/constants/set-password-flow';
-import { environment } from '../../../../../environments/environment';
+import { CALENDAR_CONNECT_PENDING_KEY } from '../../../../core/constants/calendar-flow';
+import {
+  googleOAuthUrl,
+  GOOGLE_IDENTITY_SCOPE,
+  GOOGLE_LOGIN_SCOPE,
+  GOOGLE_CALENDAR_SCOPE,
+} from '../../../../core/utils/google-oauth';
 import { CategoryManager } from './category-manager/category-manager';
 
 @Component({
@@ -73,16 +79,6 @@ export class UserProfile implements OnDestroy {
     this.authService.logout();
   }
 
-  changeFullName(event: Event) {
-    event.preventDefault();
-    const fullName = this.newFullName().trim();
-    if (!fullName) return;
-
-    this.userService.updateFullName({ fullName }, {
-      onSuccess: () => this.newFullName.set(''),
-    });
-  }
-
   changePassword(event: Event) {
     event.preventDefault();
     const currentPassword = this.currentPassword();
@@ -106,16 +102,18 @@ export class UserProfile implements OnDestroy {
     sessionStorage.setItem(SET_PASSWORD_PENDING_KEY, '1');
     sessionStorage.setItem(SET_PASSWORD_VALUE_KEY, newPassword);
 
-    const params = new URLSearchParams({
-      client_id: environment.googleClientId,
-      redirect_uri: this.redirectUri,
-      response_type: 'code',
-      scope: 'openid email',
-      access_type: 'offline',
-      prompt: 'consent',
-    });
+    this.document.location.href = googleOAuthUrl(this.redirectUri, GOOGLE_IDENTITY_SCOPE);
+  }
 
-    this.document.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+  connectGoogle(event: Event) {
+    event.preventDefault();
+    this.document.location.href = googleOAuthUrl(this.redirectUri, GOOGLE_LOGIN_SCOPE);
+  }
+
+  connectGoogleCalendar(event: Event) {
+    event.preventDefault();
+    sessionStorage.setItem(CALENDAR_CONNECT_PENDING_KEY, '1');
+    this.document.location.href = googleOAuthUrl(this.redirectUri, GOOGLE_CALENDAR_SCOPE);
   }
 
   ngOnDestroy(): void {

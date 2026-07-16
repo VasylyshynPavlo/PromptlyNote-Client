@@ -94,9 +94,9 @@ export class UserService {
 
   setPassword(parameters: { newPassword: string; code: string; redirectUri: string }, callbacks?: RequestCallbacks) {
     this.passwordError.set('');
-    const url = `${this.apiUrl}/user/password/set?redirectUri=${encodeURIComponent(parameters.redirectUri)}`;
+    const url = `${this.apiUrl}/user/password/set`;
     this.http
-      .put(url, { newPassword: parameters.newPassword, code: parameters.code })
+      .put(url, { newPassword: parameters.newPassword, code: parameters.code, redirectUri: parameters.redirectUri })
       .pipe(finalize(() => callbacks?.onSettled?.()))
       .subscribe({
         next: () => {
@@ -111,6 +111,13 @@ export class UserService {
           callbacks?.onError?.(error);
         },
       });
+  }
+
+  markGoogleCalendarConnected() {
+    const currentUser = this.user();
+    if (currentUser) {
+      this.user.set({ ...currentUser, googleCalendar: true });
+    }
   }
 
   setUser(user: User | null) {

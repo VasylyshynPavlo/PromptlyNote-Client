@@ -35,29 +35,6 @@
       <p class="text-sm text-slate-600 dark:text-slate-400">{{ userService.user()?.email }}</p>
     </div>
 
-    <form class="flex flex-col gap-2" (submit)="changeFullName($event)">
-      <label for="profile-fullname" class="text-sm font-semibold">Full name</label>
-      <div class="flex items-center gap-2">
-        <input
-          id="profile-fullname"
-          type="text"
-          maxlength="255"
-          placeholder="Change full name"
-          class="flex-1 min-w-0 rounded-md bg-transparent px-2 py-1 text-sm border border-white/10 focus:border-indigo-700 dark:focus:border-indigo-300 outline-none"
-          [value]="newFullName()"
-          (input)="newFullName.set($any($event.target).value)"
-        />
-        <button
-          type="submit"
-          class="flex items-center rounded-md p-1 border border-transparent hover:border-indigo-700 dark:hover:border-indigo-300 transition-colors disabled:opacity-40"
-          aria-label="Save full name"
-          [disabled]="!newFullName().trim()"
-        >
-          <span class="material-symbols-outlined" aria-hidden="true">check</span>
-        </button>
-      </div>
-    </form>
-
     @if (userService.user()?.isPasswordSet) {
       <form class="flex flex-col gap-2" (submit)="changePassword($event)">
         <h3 class="text-sm font-semibold">Change password</h3>
@@ -116,6 +93,40 @@
         </button>
       </form>
     }
+
+    <div class="flex flex-col gap-2">
+      <h3 class="text-sm font-semibold">Google</h3>
+
+      @if (!userService.user()?.isGoogleLinked) {
+        <button
+          type="button"
+          class="input-glass flex items-center justify-center gap-2"
+          (click)="connectGoogle($event)"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">link</span>
+          Connect Google
+        </button>
+      }
+
+      @if (userService.user()?.googleCalendar) {
+        <p class="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+          <span class="material-symbols-outlined text-base" aria-hidden="true">check_circle</span>
+          Google Calendar connected
+        </p>
+      }
+      <button
+        type="button"
+        class="input-glass flex items-center justify-center gap-2"
+        (click)="connectGoogleCalendar($event)"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+        {{
+          userService.user()?.googleCalendar
+            ? 'Reconnect Google Calendar'
+            : 'Connect Google Calendar'
+        }}
+      </button>
+    </div>
 
     <app-category-manager />
 
