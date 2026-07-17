@@ -123,6 +123,5 @@ export class UserService {
   setUser(user: User | null) {
     this.user.set(user);
     this.loaded = user !== null;
-    console.log('User set:', user);
   }
 }

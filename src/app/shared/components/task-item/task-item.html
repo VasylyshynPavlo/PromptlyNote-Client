@@ -17,7 +17,7 @@
       <input
         #nameInput
         type="text"
-        class="p-2 flex-1 bg-transparent focus:outline-none"
+        class="p-2 flex-1 bg-transparent focus:outline-none min-w-0"
         aria-label="Task name"
         [value]="nameDraft()"
         (input)="nameDraft.set($any($event.target).value)"

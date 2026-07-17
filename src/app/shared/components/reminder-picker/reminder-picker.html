@@ -4,15 +4,20 @@
   #trigger="cdkOverlayOrigin"
   class="flex items-center justify-center p-2 hover:border-indigo-700 dark:hover:border-indigo-300 border border-transparent rounded-md disabled:opacity-40 disabled:cursor-not-allowed"
   [disabled]="disabled()"
-  [class]="value() !== null ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-900 dark:text-slate-100'"
+  [class]="
+    disabled()
+      ? 'text-slate-500 dark:text-slate-400'
+      : value() !== null
+      ? 'text-indigo-700 dark:text-indigo-300'
+      : 'text-slate-900 dark:text-slate-100'
+  "
   [title]="
-    disabled() !== null
+    disabled()
       ? 'Reminders are disabled for this task'
       : value() !== null
       ? 'Reminder set for ' + value() + ' minutes before'
-      : 'No reminder set'  
+      : 'No reminder set'
   "
-  [class]="disabled() !== null ? 'text-slate-500 dark:text-slate-400' : ''"
   (click)="toggle()"
 >
   <span class="material-symbols-outlined" aria-hidden="true">
