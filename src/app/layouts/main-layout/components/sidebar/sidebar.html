@@ -22,7 +22,7 @@
               <span class="ml-auto text-sm text-slate-500 dark:text-slate-400  p-2">
                 {{ list.taskCount }}
               </span>
-              <button class="flex items-center cursor-pointer px-2 py-2 hover:text-red-600 hover:dark:text-red-400 transition-all" [hidden]="list.default">
+              <button class="flex items-center cursor-pointer px-2 py-2 hover:text-red-600 hover:dark:text-red-400 transition-all" [hidden]="list.default" (click)="deleteList(list.id)">
                 <span class="material-symbols-outlined" aria-hidden="true">
                   delete
                 </span>

@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, Pipe, PipeTransform, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { TaskListService } from '../../../../core/services/task-list-service';
 import { IconPicker } from '../icon-picker/icon-picker';
 
@@ -10,6 +10,7 @@ import { IconPicker } from '../icon-picker/icon-picker';
 })
 export class Sidebar implements OnInit {
   readonly taskListService = inject(TaskListService);
+  private readonly router = inject(Router);
 
   newListIcon = signal<string>('check_box');
   newListName = signal<string>('');
@@ -31,6 +32,17 @@ export class Sidebar implements OnInit {
         },
       },
     );
+  }
+
+  deleteList(listId: string) {
+    this.taskListService.delete({ id: listId }).subscribe({
+      next: () => {
+        this.taskListService.reload();
+      },
+      error: (error) => {
+        console.error('Error deleting task list:', error);
+      },
+    });
   }
 
   ngOnInit(): void {
