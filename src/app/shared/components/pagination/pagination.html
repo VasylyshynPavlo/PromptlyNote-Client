@@ -1,0 +1,40 @@
+@if (totalPages() > 1) {
+  <nav class="flex items-center justify-center gap-1 pt-3" [attr.aria-label]="label()">
+    <button
+      type="button"
+      class="page-button"
+      [disabled]="isFirst()"
+      [attr.aria-label]="'Go to previous page'"
+      (click)="goTo(page() - 1)"
+    >
+      <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>
+    </button>
+
+    @for (slot of slots(); track $index) {
+      @if (slot === 'ellipsis') {
+        <span class="px-2 text-slate-500 dark:text-slate-400" aria-hidden="true">…</span>
+      } @else {
+        <button
+          type="button"
+          class="page-button"
+          [class.page-button-current]="slot === page()"
+          [attr.aria-label]="'Go to page ' + (slot + 1)"
+          [attr.aria-current]="slot === page() ? 'page' : null"
+          (click)="goTo(slot)"
+        >
+          {{ slot + 1 }}
+        </button>
+      }
+    }
+
+    <button
+      type="button"
+      class="page-button"
+      [disabled]="isLast()"
+      [attr.aria-label]="'Go to next page'"
+      (click)="goTo(page() + 1)"
+    >
+      <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
+    </button>
+  </nav>
+}

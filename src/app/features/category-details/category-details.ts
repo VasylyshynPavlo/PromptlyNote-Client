@@ -1,25 +1,24 @@
 import { Component, effect, inject, input, signal, untracked } from '@angular/core';
-import { TaskList } from '../../core/interfaces/task-list';
+import { Category } from '../../core/interfaces/category';
 import { Task } from '../../core/interfaces/task';
-import { TaskListService } from '../../core/services/task-list-service';
+import { CategoryService } from '../../core/services/category-service';
 import { TaskItem } from '../../shared/components/task-item/task-item';
-import { AddTask } from '../../shared/components/add-task/add-task';
 import { Pagination } from '../../shared/components/pagination/pagination';
 
 const PAGE_SIZE = 20;
 
 @Component({
-  selector: 'app-list-details',
-  imports: [TaskItem, AddTask, Pagination],
-  templateUrl: './list-details.html',
+  selector: 'app-category-details',
+  imports: [TaskItem, Pagination],
+  templateUrl: './category-details.html',
   host: { class: 'block h-full min-h-0' },
 })
-export class ListDetails {
-  private readonly taskListService = inject(TaskListService);
+export class CategoryDetails {
+  private readonly categoryService = inject(CategoryService);
 
   readonly id = input.required<string>();
 
-  readonly taskList = signal<TaskList | null>(null);
+  readonly category = signal<Category | null>(null);
   readonly tasks = signal<Task[] | null>(null);
   readonly loading = signal(false);
   readonly page = signal(0);
@@ -45,6 +44,10 @@ export class ListDetails {
   }
 
   replaceTask(updated: Task): void {
+    if (updated.categoryId !== this.id()) {
+      this.removeTask(updated.id);
+      return;
+    }
     this.tasks.update((tasks) =>
       tasks ? tasks.map((task) => (task.id === updated.id ? updated : task)) : tasks,
     );
@@ -57,20 +60,20 @@ export class ListDetails {
 
   private load(id: string, page: number): void {
     this.loading.set(true);
-    this.taskListService.getWithTasks(
+    this.categoryService.getWithTasks(
       { id, page, pageSize: PAGE_SIZE },
       {
-        onSuccess: ({ taskList, tasks }) => {
+        onSuccess: ({ category, tasks }) => {
           if (page > 0 && page >= tasks.totalPages) {
             this.goToPage(Math.max(tasks.totalPages - 1, 0));
             return;
           }
-          this.taskList.set(taskList);
+          this.category.set(category);
           this.tasks.set(tasks.data);
           this.totalPages.set(tasks.totalPages);
         },
         onError: () => {
-          this.taskList.set(null);
+          this.category.set(null);
           this.tasks.set(null);
           this.totalPages.set(0);
         },

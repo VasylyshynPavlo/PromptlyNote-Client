@@ -1,10 +1,12 @@
 import { inject, Service, signal } from '@angular/core';
-import { finalize } from 'rxjs';
+import { finalize, map, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Category } from '../interfaces/category';
+import { Task } from '../interfaces/task';
 import { DataDetails } from '../interfaces/data-details';
-import { RequestCallbacks } from '../interfaces/request-callbacks';
+import { RequestCallbacks, ResultCallbacks } from '../interfaces/request-callbacks';
+import { TaskSerivce } from './task-serivce';
 
 export interface CategoryQuery {
   page: number;
@@ -19,14 +21,51 @@ const DEFAULT_QUERY: CategoryQuery = { page: 0, pageSize: 100, sortBy: 0, isDesc
 export class CategoryService {
   private readonly apiUrl = environment.apiUrl;
   private readonly http = inject(HttpClient);
+  private readonly taskService = inject(TaskSerivce);
 
   readonly loading = signal(false);
-  readonly categories = signal<DataDetails<Category>>({ data: [], count: 0, currentPage: 0, totalPages: 0 });
+  readonly categories = signal<DataDetails<Category>>({
+    data: [],
+    count: 0,
+    currentPage: 0,
+    totalPages: 0,
+  });
 
   private loaded = false;
 
   get(parameters: { id: string }) {
-    return this.http.get(`${this.apiUrl}/category/${parameters.id}`);
+    return this.http.get<Category>(`${this.apiUrl}/category/${parameters.id}`);
+  }
+
+  getWithTasks(
+    parameters: { id: string; page: number; pageSize: number },
+    callbacks?: ResultCallbacks<{ category: Category; tasks: DataDetails<Task> }>,
+  ) {
+    this.get({ id: parameters.id })
+      .pipe(
+        switchMap((category) =>
+          this.taskService
+            .list({
+              page: parameters.page,
+              pageSize: parameters.pageSize,
+              sortBy: 0,
+              includeCategory: true,
+              includeTaskList: false,
+              includeSubTasks: true,
+              categoryFilter: parameters.id,
+              isDescending: false,
+            })
+            .pipe(map((tasks) => ({ category, tasks }))),
+        ),
+        finalize(() => callbacks?.onSettled?.()),
+      )
+      .subscribe({
+        next: (result) => callbacks?.onSuccess?.(result),
+        error: (error) => {
+          console.error('Error fetching category:', error);
+          callbacks?.onError?.(error);
+        },
+      });
   }
 
   list(parameters: CategoryQuery = DEFAULT_QUERY, force = false) {
@@ -39,26 +78,26 @@ export class CategoryService {
     queryParams += `&pageSize=${parameters.pageSize}`;
     queryParams += `&sortBy=${parameters.sortBy}`;
     queryParams += `&isDescending=${parameters.isDescending}`;
-    return this.http.get(`${this.apiUrl}/category?${queryParams}`).subscribe({
-      next: (response: any) => {
-        this.categories.set(response);
-        this.loaded = true;
-        this.loading.set(false);
-      },
-      error: (error) => {
-        this.loading.set(false);
-        console.error('Error fetching categories:', error);
-      },
-    });
+    return this.http
+      .get<DataDetails<Category>>(`${this.apiUrl}/category?${queryParams}`)
+      .subscribe({
+        next: (response: DataDetails<Category>) => {
+          this.categories.set(response);
+          this.loaded = true;
+          this.loading.set(false);
+        },
+        error: (error) => {
+          this.loading.set(false);
+          console.error('Error fetching categories:', error);
+        },
+      });
   }
 
   create(parameters: { name: string; colorHex: string }, callbacks?: RequestCallbacks) {
-    const body = new HttpParams()
-      .set('Name', parameters.name)
-      .set('ColorHex', parameters.colorHex);
+    const body = new HttpParams().set('Name', parameters.name).set('ColorHex', parameters.colorHex);
 
     const headers = new HttpHeaders({
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     });
 
     this.http
@@ -77,12 +116,10 @@ export class CategoryService {
   }
 
   update(parameters: { id: string; name: string; colorHex: string }, callbacks?: RequestCallbacks) {
-    const body = new HttpParams()
-      .set('Name', parameters.name)
-      .set('ColorHex', parameters.colorHex);
+    const body = new HttpParams().set('Name', parameters.name).set('ColorHex', parameters.colorHex);
 
     const headers = new HttpHeaders({
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     });
 
     this.http
@@ -116,11 +153,11 @@ export class CategoryService {
       });
   }
 
-  search(parameters: { term: string; page: number; pageSize: number; }) {
+  search(parameters: { term: string; page: number; pageSize: number }) {
     let queryParams = `term=${encodeURIComponent(parameters.term)}`;
     queryParams += `&page=${parameters.page}`;
     queryParams += `&pageSize=${parameters.pageSize}`;
-    return this.http.get(`${this.apiUrl}/category/search?${queryParams}`);
+    return this.http.get<DataDetails<Category>>(`${this.apiUrl}/category/search?${queryParams}`);
   }
 
   reload(parameters: CategoryQuery = DEFAULT_QUERY): void {

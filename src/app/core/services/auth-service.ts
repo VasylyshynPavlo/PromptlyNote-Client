@@ -1,5 +1,12 @@
 import { UserService } from "./user-service";
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpContext,
+  HttpErrorResponse,
+  HttpHeaders,
+  HttpParams,
+} from '@angular/common/http';
+import { SKIP_ERROR_TOAST } from '../interceptors/error-interceptor';
 import { inject, signal, Service } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
@@ -58,6 +65,13 @@ export class AuthService {
     'Content-Type': 'application/x-www-form-urlencoded',
   });
 
+  private get formOptions() {
+    return {
+      headers: this.formHeaders,
+      context: new HttpContext().set(SKIP_ERROR_TOAST, true),
+    };
+  }
+
   login(creditals: { email: string; password: string }) {
     this.errors.set({ fields: {} });
     this.loading.set(true);
@@ -66,7 +80,7 @@ export class AuthService {
       .set('Email', creditals.email)
       .set('Password', creditals.password);
 
-    this.http.post<User>(`${this.apiUrl}/auth/login`, body.toString(), { headers: this.formHeaders }).subscribe({
+    this.http.post<User>(`${this.apiUrl}/auth/login`, body.toString(), this.formOptions).subscribe({
       next: (user) => {
         this.userService.setUser(user);
         this.loading.set(false);
@@ -88,7 +102,7 @@ export class AuthService {
       .set('Email', creditals.email)
       .set('Password', creditals.password);
 
-    this.http.post<User>(`${this.apiUrl}/auth/register`, body.toString(), { headers: this.formHeaders }).subscribe({
+    this.http.post<User>(`${this.apiUrl}/auth/register`, body.toString(), this.formOptions).subscribe({
       next: (user) => {
         this.userService.setUser(user);
         this.loading.set(false);
@@ -109,7 +123,7 @@ export class AuthService {
       .set('Code', payload.code)
       .set('RedirectUri', payload.redirectUri);
 
-    this.http.post<User>(`${this.apiUrl}/auth/login/google`, body.toString(), { headers: this.formHeaders }).subscribe({
+    this.http.post<User>(`${this.apiUrl}/auth/login/google`, body.toString(), this.formOptions).subscribe({
       next: (user) => {
         this.userService.setUser(user);
         this.loading.set(false);

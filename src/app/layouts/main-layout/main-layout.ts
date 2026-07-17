@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   effect,
   inject,
   OnDestroy,
@@ -10,7 +11,7 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { OverlayRef } from '@angular/cdk/overlay';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { A11yModule } from '@angular/cdk/a11y';
@@ -19,12 +20,13 @@ import { Sidebar } from './components/sidebar/sidebar';
 import { UserProfile } from './components/user-profile/user-profile';
 import { DrawerService } from '../../core/services/drawer-service';
 import { UserService } from '../../core/services/user-service';
+import { MIN_SEARCH_LENGTH } from '../../core/services/search-service';
 
-const NARROW_SCREEN = '(max-width: 767px)';
+const NARROW_SCREEN = '(max-width: 1023px)';
 
 @Component({
   selector: 'app-main-layout',
-  imports: [RouterOutlet, RouterLink, Sidebar, UserProfile, NgTemplateOutlet, A11yModule],
+  imports: [RouterOutlet, Sidebar, UserProfile, NgTemplateOutlet, A11yModule],
   templateUrl: './main-layout.html',
 })
 export class MainLayout implements OnDestroy {
@@ -32,11 +34,19 @@ export class MainLayout implements OnDestroy {
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly breakpointObserver = inject(BreakpointObserver);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly userService = inject(UserService);
 
   private readonly sidebarDrawer = viewChild.required<TemplateRef<unknown>>('sidebarDrawer');
   private overlayRef: OverlayRef | null = null;
+
+  readonly minSearchLength = MIN_SEARCH_LENGTH;
+  readonly searchTerm = signal('');
+  readonly canSearch = computed(() => this.searchTerm().trim().length >= MIN_SEARCH_LENGTH);
+  readonly showSearchHint = computed(
+    () => this.searchTerm().trim().length > 0 && !this.canSearch(),
+  );
 
   readonly sidebarOpen = signal(false);
   readonly isNarrow = toSignal(
@@ -55,6 +65,20 @@ export class MainLayout implements OnDestroy {
         takeUntilDestroyed(),
       )
       .subscribe(() => this.closeSidebar());
+
+    this.route.queryParamMap
+      .pipe(
+        map((params) => params.get('term') ?? ''),
+        takeUntilDestroyed(),
+      )
+      .subscribe((term) => this.searchTerm.set(term));
+  }
+
+  submitSearch(event: Event) {
+    event.preventDefault();
+    if (!this.canSearch()) return;
+
+    this.router.navigate(['/search'], { queryParams: { term: this.searchTerm().trim() } });
   }
 
   toggleSidebar() {

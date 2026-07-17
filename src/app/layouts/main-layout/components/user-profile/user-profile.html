@@ -6,7 +6,7 @@
   (click)="toggle()"
 >
   <span class="material-symbols-outlined" aria-hidden="true">account_circle</span>
-  <span class="text-sm font-medium">{{ userService.user()?.fullName }}</span>
+  <span class="text-sm font-medium hidden md:block">{{ userService.user()?.fullName }}</span>
 </button>
 
 <ng-template #panel>

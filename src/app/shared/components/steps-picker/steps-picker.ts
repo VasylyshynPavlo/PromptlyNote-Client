@@ -1,7 +1,7 @@
 import { Component, input, output, signal } from '@angular/core';
 import { OverlayModule, ConnectedPosition } from '@angular/cdk/overlay';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
-import { CreateSubTask } from '../../../../core/interfaces/api/create-task';
+import { CreateSubTask } from '../../../core/interfaces/api/create-task';
 
 @Component({
   selector: 'app-steps-picker',

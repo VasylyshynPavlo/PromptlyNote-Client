@@ -39,7 +39,32 @@
           <span class="material-symbols-outlined" aria-hidden="true">menu</span>
         </button>
       }
-      Search placeholder
+      <form
+        class="flex gap-2 items-center bg-white/10 backdrop-blur-lg rounded-md px-2 py-1 focus-within:ring-2 focus-within:ring-indigo-700 dark:focus-within:ring-indigo-300"
+        role="search"
+        (submit)="submitSearch($event)"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">search</span>
+        <input
+          type="search"
+          name="term"
+          class="bg-transparent outline-none text-sm w-40"
+          placeholder="Search..."
+          aria-label="Search tasks, lists and categories"
+          aria-describedby="search-hint"
+          [value]="searchTerm()"
+          (input)="searchTerm.set($any($event.target).value)"
+        />
+        <button type="submit" class="hidden" [disabled]="!canSearch()"></button>
+      </form>
+      <p
+        id="search-hint"
+        class="text-xs text-slate-500 dark:text-slate-400"
+        [class.sr-only]="!showSearchHint()"
+        aria-live="polite"
+      >
+        Type at least {{ minSearchLength }} characters, then press Enter to search.
+      </p>
     </div>
     <div class="flex gap-3 items-center">
       <app-user-profile />

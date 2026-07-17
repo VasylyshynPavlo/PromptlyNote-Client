@@ -1,6 +1,6 @@
 import { Component, computed, input, output, signal } from '@angular/core';
 import { OverlayModule, ConnectedPosition } from '@angular/cdk/overlay';
-import { LocalDatePipe } from '../../../../core/pipes/local-date-pipe';
+import { LocalDatePipe } from '../../../core/pipes/local-date-pipe';
 
 @Component({
   selector: 'app-date-picker',

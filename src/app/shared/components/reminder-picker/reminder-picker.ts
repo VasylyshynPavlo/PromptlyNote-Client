@@ -1,21 +1,19 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { OverlayModule, ConnectedPosition } from '@angular/cdk/overlay';
-import { Category } from '../../../../core/interfaces/category';
-import { CategoryService } from '../../../../core/services/category-service';
 
 @Component({
-  selector: 'app-category-picker',
+  selector: 'app-reminder-picker',
   imports: [OverlayModule],
-  templateUrl: './category-picker.html',
+  templateUrl: './reminder-picker.html',
 })
-export class CategoryPicker {
-  categoryService = inject(CategoryService);
+export class ReminderPicker {
+  value = input<number | null>(null);
+  disabled = input(false);
+  changed = output<number | null>();
 
-  selected = input<Category | null>(null);
-  changed = output<Category | null>();
-
+  max = 40320;
   open = signal(false);
-  categories = this.categoryService.categories;
+  draft = signal<number | null>(null);
 
   positions: ConnectedPosition[] = [
     { originX: 'center', originY: 'bottom', overlayX: 'center', overlayY: 'top', offsetY: 8 },
@@ -31,16 +29,22 @@ export class CategoryPicker {
       this.close();
       return;
     }
-    this.categoryService.list();
+    this.draft.set(this.value());
     this.open.set(true);
   }
 
   close() {
     this.open.set(false);
   }
+  set() {
+    const min = this.draft();
+    if (min === null || min < 1 || min > this.max) return;
+    this.changed.emit(min);
+    this.close();
+  }
 
-  select(category: Category | null) {
-    this.changed.emit(category);
+  clear() {
+    this.changed.emit(null);
     this.close();
   }
 }

@@ -1,1 +1,110 @@
-<p>search works!</p>
+<div class="p-6 flex flex-col h-full min-h-0 overflow-y-auto">
+  <header class="mb-4">
+    <h1 class="text-2xl font-bold">Search</h1>
+    @if (!termTooShort()) {
+      <p class="text-slate-500 dark:text-slate-400">Results for “{{ trimmedTerm() }}”</p>
+    }
+  </header>
+
+  @if (termTooShort()) {
+    <p class="text-slate-500 dark:text-slate-400">
+      Enter at least {{ minSearchLength }} characters to search.
+    </p>
+  } @else {
+    <p class="sr-only" aria-live="polite">
+      @if (search.loading()) {
+        Searching…
+      } @else {
+        {{ resultCount() }} results found.
+      }
+    </p>
+
+    @if (search.loading()) {
+      <p aria-hidden="true">Loading...</p>
+    }
+
+    <div class="flex flex-col gap-6">
+      <section aria-labelledby="search-tasks-heading">
+        <h2 id="search-tasks-heading" class="font-semibold mb-2">
+          Tasks ({{ search.tasks().count }})
+        </h2>
+        @if (search.tasks().data.length === 0) {
+          <p class="text-slate-500 dark:text-slate-400">No tasks match this search.</p>
+        } @else {
+          <ul class="flex flex-col gap-1">
+            @for (task of search.tasks().data; track task.id) {
+              <li>
+                <a
+                  [routerLink]="['/lists', task.taskListId]"
+                  class="flex items-center gap-3 p-2 rounded-md bg-white/5 backdrop-blur-md shadow border border-transparent hover:border-indigo-700 dark:hover:border-indigo-300 transition-colors"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">
+                    {{ task.isCompleted ? 'check_box' : 'check_box_outline_blank' }}
+                  </span>
+                  <span class="flex-1" [class.line-through]="task.isCompleted">{{ task.name }}</span>
+                  @if (task.category; as category) {
+                    <span class="text-sm text-slate-500 dark:text-slate-400">
+                      {{ category.name }}
+                    </span>
+                  }
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section aria-labelledby="search-lists-heading">
+        <h2 id="search-lists-heading" class="font-semibold mb-2">
+          Task lists ({{ search.taskLists().count }})
+        </h2>
+        @if (search.taskLists().data.length === 0) {
+          <p class="text-slate-500 dark:text-slate-400">No task lists match this search.</p>
+        } @else {
+          <ul class="flex flex-col gap-1">
+            @for (list of search.taskLists().data; track list.id) {
+              <li>
+                <a
+                  [routerLink]="['/lists', list.id]"
+                  class="flex items-center gap-3 p-2 rounded-md bg-white/5 backdrop-blur-md shadow border border-transparent hover:border-indigo-700 dark:hover:border-indigo-300 transition-colors"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">
+                    {{ list.iconName }}
+                  </span>
+                  <span class="flex-1">{{ list.name }}</span>
+                  <span class="text-sm text-slate-500 dark:text-slate-400">
+                    {{ list.taskCount }}
+                  </span>
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section aria-labelledby="search-categories-heading">
+        <h2 id="search-categories-heading" class="font-semibold mb-2">
+          Categories ({{ search.categories().count }})
+        </h2>
+        @if (search.categories().data.length === 0) {
+          <p class="text-slate-500 dark:text-slate-400">No categories match this search.</p>
+        } @else {
+          <ul class="flex flex-wrap gap-2">
+            @for (category of search.categories().data; track category.id) {
+              <li
+                class="flex items-center gap-2 p-2 rounded-md bg-white/5 backdrop-blur-md shadow"
+              >
+                <span
+                  class="w-3 h-3 rounded-full"
+                  aria-hidden="true"
+                  [style.background-color]="category.colorHex"
+                ></span>
+                {{ category.name }}
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  }
+</div>

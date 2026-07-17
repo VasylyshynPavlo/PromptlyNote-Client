@@ -15,6 +15,16 @@ export const routes: Routes = [
         path: 'lists/:id',
         loadComponent: () =>
           import('./features/list-details/list-details').then((m) => m.ListDetails)
+      },
+      {
+        path: 'search',
+        loadComponent: () =>
+          import('./features/search/search').then((m) => m.Search)
+      },
+      {
+        path: 'categories/:id',
+        loadComponent: () =>
+          import('./features/category-details/category-details').then((m) => m.CategoryDetails)
       }
     ]
   },

@@ -81,6 +81,13 @@ export class TaskSerivce {
       });
   }
 
+  search(parameters: { term: string; page: number; pageSize: number }) {
+    let queryParams = `term=${encodeURIComponent(parameters.term)}`;
+    queryParams += `&page=${parameters.page}`;
+    queryParams += `&pageSize=${parameters.pageSize}`;
+    return this.http.get<DataDetails<Task>>(`${this.apiUrl}/task/search?${queryParams}`);
+  }
+
   mutateAndReload(
     mutation$: Observable<unknown>,
     parameters: {
@@ -106,10 +113,7 @@ export class TaskSerivce {
   }
 
   replaceSubTasks(parameters: { taskId: string; subTasks: CreateSubTask[] }) {
-    return this.http.put(
-      `${this.apiUrl}/task/${parameters.taskId}/subtasks`,
-      parameters.subTasks,
-    );
+    return this.http.put(`${this.apiUrl}/task/${parameters.taskId}/subtasks`, parameters.subTasks);
   }
 
   addToGoogleCalendar(parameters: { taskId: string }) {

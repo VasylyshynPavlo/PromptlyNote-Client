@@ -58,22 +58,25 @@ export class TaskListService {
     return this.http.get<TaskList>(`${this.apiUrl}/tasklist/${parameters.id}`);
   }
 
-  getWithTasks(id: string, callbacks?: ResultCallbacks<{ taskList: TaskList; tasks: Task[] }>) {
-    this.get({ id })
+  getWithTasks(
+    parameters: { id: string; page: number; pageSize: number },
+    callbacks?: ResultCallbacks<{ taskList: TaskList; tasks: DataDetails<Task> }>,
+  ) {
+    this.get({ id: parameters.id })
       .pipe(
         switchMap((taskList) =>
           this.taskService
             .list({
-              page: 0,
-              pageSize: 100,
+              page: parameters.page,
+              pageSize: parameters.pageSize,
               sortBy: 0,
               includeCategory: true,
               includeTaskList: false,
               includeSubTasks: true,
-              taskListFilter: id,
+              taskListFilter: parameters.id,
               isDescending: false,
             })
-            .pipe(map((response) => ({ taskList, tasks: response.data }))),
+            .pipe(map((tasks) => ({ taskList, tasks }))),
         ),
         finalize(() => callbacks?.onSettled?.()),
       )
@@ -128,6 +131,13 @@ export class TaskListService {
 
   delete(parameters: { id: string }) {
     return this.http.delete(`${this.apiUrl}/tasklist/${parameters.id}`);
+  }
+
+  search(parameters: { term: string; page: number; pageSize: number }) {
+    let queryParams = `term=${encodeURIComponent(parameters.term)}`;
+    queryParams += `&page=${parameters.page}`;
+    queryParams += `&pageSize=${parameters.pageSize}`;
+    return this.http.get<DataDetails<TaskList>>(`${this.apiUrl}/tasklist/search?${queryParams}`);
   }
 
   reload(parameters: TaskListQuery = DEFAULT_QUERY): void {

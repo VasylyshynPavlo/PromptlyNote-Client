@@ -39,7 +39,6 @@
     <div class="flex items-center gap-2">
       <app-reminder-picker
         [value]="task().remindBeforeMinutes"
-        [disabled]="task().syncToGoogleCalendar === false"
         (changed)="onReminderChanged($event)"
         [hidden]="!userService.user()?.googleCalendar"
       />

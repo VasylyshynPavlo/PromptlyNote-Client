@@ -1,0 +1,30 @@
+<div
+  class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 w-80 max-w-[calc(100vw-2rem)] pointer-events-none"
+  aria-live="assertive"
+  aria-atomic="false"
+>
+  @for (toast of errorService.toasts(); track toast.id) {
+    <div
+      class="toast-enter pointer-events-auto flex items-start gap-2 p-3 rounded-md
+             text-sm text-slate-900 dark:text-slate-100
+             border border-red-500/20 dark:border-red-400/20
+             bg-red-500/10 dark:bg-red-400/10
+             backdrop-blur-md shadow-xl"
+    >
+      <span class="material-symbols-outlined text-base text-red-600 dark:text-red-400" aria-hidden="true">
+        error
+      </span>
+      <p class="flex-1 min-w-0 wrap-break-words">{{ toast.message }}</p>
+      <button
+        type="button"
+        class="shrink-0 rounded-sm p-0.5 outline-none transition-colors
+               text-slate-500 dark:text-slate-400
+               hocus:text-slate-900 dark:hocus:text-slate-100"
+        aria-label="Dismiss error"
+        (click)="errorService.dismiss(toast.id)"
+      >
+        <span class="material-symbols-outlined text-base" aria-hidden="true">close</span>
+      </button>
+    </div>
+  }
+</div>

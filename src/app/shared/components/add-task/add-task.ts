@@ -1,13 +1,13 @@
 import { Component, inject, input, output, signal } from '@angular/core';
-import { CreateTask, CreateSubTask } from '../../../../core/interfaces/api/create-task';
-import { Category } from '../../../../core/interfaces/category';
-import { TaskSerivce } from '../../../../core/services/task-serivce';
+import { CreateTask, CreateSubTask } from '../../../core/interfaces/api/create-task';
+import { Category } from '../../../core/interfaces/category';
+import { TaskSerivce } from '../../../core/services/task-serivce';
 import { DatePicker } from '../date-picker/date-picker';
 import { ReminderPicker } from '../reminder-picker/reminder-picker';
 import { StepsPicker } from '../steps-picker/steps-picker';
 import { NotePicker } from '../note-picker/note-picker';
 import { CategoryPicker } from '../category-picker/category-picker';
-import { UserService } from '../../../../core/services/user-service';
+import { UserService } from '../../../core/services/user-service';
 
 @Component({
   selector: 'app-add-task',

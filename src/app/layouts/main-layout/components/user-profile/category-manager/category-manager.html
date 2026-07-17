@@ -43,11 +43,16 @@
             </form>
           } @else {
             <div class="flex items-center gap-2 rounded-md px-1 py-1">
+              <a [routerLink]="['/categories', category.id]" class="flex items-center">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1" aria-hidden="true">
+                  open_in_new
+                </span>
+              </a>
               <span
-                class="h-3 w-3 shrink-0 rounded-full"
+                class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1" aria-hidden="true"
                 aria-hidden="true"
-                [style.background-color]="category.colorHex"
-              ></span>
+                [style.color]="category.colorHex"
+              >circle</span>
               <span class="flex-1 min-w-0 truncate text-sm">{{ category.name }}</span>
 
               @if (category.default) {

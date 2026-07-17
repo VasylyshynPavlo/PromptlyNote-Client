@@ -229,6 +229,37 @@
            outline-none transition-all duration-200;
   }
 
+  .toast-enter {
+    animation: toast-in 200ms ease-out;
+  }
+
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toast-enter {
+      animation: none;
+    }
+  }
+
+  .page-button {
+    @apply min-w-9 h-9 px-2 flex items-center justify-center text-sm
+           text-slate-900 dark:text-slate-100
+           border border-black/3 dark:border-white/10
+           hocus:border-indigo-700 dark:hocus:border-indigo-300
+           rounded-md backdrop-blur-md shadow
+           outline-none transition-all duration-200
+           disabled:opacity-40 disabled:pointer-events-none;
+  }
+
+  .page-button-current {
+    @apply bg-indigo-700/15 dark:bg-indigo-300/15 border-indigo-700 dark:border-indigo-300 font-semibold;
+  }
+
   .input-glass-red {
     @apply w-full px-4 py-3 text-sm text-slate-900 dark:text-slate-100
            placeholder:text-slate-600 border dark:placeholder:text-slate-400 border-red-500/5 dark:border-red-500/10

@@ -1,4 +1,3 @@
-import { UserService } from './../../../../core/services/user-service';
 import {
   Component,
   effect,
@@ -10,16 +9,17 @@ import {
   viewChild,
 } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Task } from '../../../../core/interfaces/task';
-import { CreateSubTask } from '../../../../core/interfaces/api/create-task';
-import { Category } from '../../../../core/interfaces/category';
-import { TaskSerivce } from '../../../../core/services/task-serivce';
+import { Task } from '../../../core/interfaces/task';
+import { CreateSubTask } from '../../../core/interfaces/api/create-task';
+import { Category } from '../../../core/interfaces/category';
+import { TaskSerivce } from '../../../core/services/task-serivce';
+import { TaskListService } from '../../../core/services/task-list-service';
+import { UserService } from '../../../core/services/user-service';
 import { DatePicker } from '../date-picker/date-picker';
 import { ReminderPicker } from '../reminder-picker/reminder-picker';
 import { StepsPicker } from '../steps-picker/steps-picker';
 import { NotePicker } from '../note-picker/note-picker';
 import { CategoryPicker } from '../category-picker/category-picker';
-import { TaskListService } from '../../../../core/services/task-list-service';
 
 @Component({
   selector: 'app-task-item',

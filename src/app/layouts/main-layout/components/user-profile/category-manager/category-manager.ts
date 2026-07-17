@@ -1,12 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CategoryService } from '../../../../../core/services/category-service';
 import { Category } from '../../../../../core/interfaces/category';
+import { RouterLink } from '@angular/router';
 
 const DEFAULT_COLOR = '#6366f1';
 
 @Component({
   selector: 'app-category-manager',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './category-manager.html',
 })
 export class CategoryManager implements OnInit {
